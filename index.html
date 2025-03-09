@@ -25,7 +25,7 @@
         
         <button onclick="convertTime()">Convert</button>
         
-        <h3>Converted Time: <span id="result">--:--</span></h3>
+        <h3>Converted Date & Time: <span id="result">--:--</span></h3>
     </div>
     
     <script>
@@ -76,10 +76,13 @@
             let timeDiff = toDate.getTime() - fromDate.getTime();
             let convertedDate = new Date(date.getTime() + timeDiff);
             
+            let year = convertedDate.getFullYear();
+            let month = (convertedDate.getMonth() + 1).toString().padStart(2, '0');
+            let day = convertedDate.getDate().toString().padStart(2, '0');
             let hours = convertedDate.getHours().toString().padStart(2, '0');
             let minutes = convertedDate.getMinutes().toString().padStart(2, '0');
             
-            document.getElementById("result").textContent = `${hours}:${minutes}`;
+            document.getElementById("result").textContent = `${year}-${month}-${day} ${hours}:${minutes}`;
         }
         
         window.onload = function() {
