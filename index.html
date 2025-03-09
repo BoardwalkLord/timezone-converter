@@ -107,17 +107,12 @@
         }
         
         function shareResult() {
-            let resultText = document.getElementById("result").textContent;
-            if (resultText === "--") {
-                alert("No result to share");
-                return;
-            }
-            
-            let shareText = `Timezone Conversion Result: ${resultText}`;
-            navigator.clipboard.writeText(shareText).then(() => {
-                alert("Result copied to clipboard! You can share it with your friends.");
-            }).catch(err => {
-                alert("Failed to copy result.");
+            let dateTime = document.getElementById("datetime").value;
+            let fromTz = document.getElementById("fromTimezone").value;
+            let toTz = document.getElementById("toTimezone").value;
+            let url = `${window.location.origin}${window.location.pathname}?datetime=${encodeURIComponent(dateTime)}&from=${encodeURIComponent(fromTz)}&to=${encodeURIComponent(toTz)}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("Link copied to clipboard! Share it with your friends.");
             });
         }
         
