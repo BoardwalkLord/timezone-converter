@@ -1,23 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timezone Converter</title>
-    <link rel="STYLESHEET" href="style.css">
-    <meta http-equiv="Content-Security-Policy" content="scriptSrc 'self' 'unsafe-eval'">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        select, input, button { margin: 10px; padding: 10px; width: 100%; }
+    </style>
 </head>
-<form id="timezoneForm">
-  <label for="inputTime">Date and Time (ISO format, e.g., 2023-01-01T12:00:00):</label>
-  <input type="text" id="inputTime" placeholder="2023-01-01T12:00:00">
-  <br>
-  <label for="sourceTimezone">Source Timezone:</label>
-  <select id="sourceTimezone"></select>
-  <br>
-  <label for="targetTimezone">Target Timezone:</label>
-  <select id="targetTimezone"></select>
-  <br>
-  <button type="button" id="convertButton">Convert</button>
-</form>
-<p id="result"></p>
-<script src="script.js"></script>
+<body>
+    <div class="container">
+        <h2>Timezone Converter</h2>
+        <label for="time">Enter Time:</label>
+        <input type="time" id="time" required>
+        
+        <label for="fromTimezone">From Timezone:</label>
+        <select id="fromTimezone"></select>
+        
+        <label for="toTimezone">To Timezone:</label>
+        <select id="toTimezone"></select>
+        
+        <button onclick="convertTime()">Convert</button>
+        
+        <h3>Converted Time: <span id="result">--:--</span></h3>
+    </div>
+    
+    <script>
+        const timezones = [
+            "UTC", "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", 
+            "Europe/London", "Europe/Paris", "Asia/Tokyo", "Asia/Dubai", "Australia/Sydney"
+        ];
+        
+        function populateTimezones() {
+            const fromSelect = document.getElementById("fromTimezone");
+            const toSelect = document.getElementById("toTimezone");
+            timezones.forEach(tz => {
+                let option1 = new Option(tz, tz);
+                let option2 = new Option(tz, tz);
+                fromSelect.add(option1);
+                toSelect.add(option2);
+            });
+        }
+        
+        function convertTime() {
+            let timeInput = document.getElementById("time").value;
+            let fromTz = document.getElementById("fromTimezone").value;
+            let toTz = document.getElementById("toTimezone").value;
+            
+            if (!timeInput || !fromTz || !toTz) {
+                alert("Please enter all fields");
+                return;
+            }
+            
+            let date = new Date("2024-01-01T" + timeInput + ":00");
+            let fromOffset = new Date().toLocaleString("en-US", { timeZone: fromTz });
+            let toOffset = new Date().toLocaleString("en-US", { timeZone: toTz });
+            
+            let fromDate = new Date(fromOffset);
+            let toDate = new Date(toOffset);
+            
+            let timeDiff = toDate.getTime() - fromDate.getTime();
+            let convertedDate = new Date(date.getTime() + timeDiff);
+            
+            let hours = convertedDate.getHours().toString().padStart(2, '0');
+            let minutes = convertedDate.getMinutes().toString().padStart(2, '0');
+            
+            document.getElementById("result").textContent = `${hours}:${minutes}`;
+        }
+        
+        window.onload = populateTimezones;
+    </script>
 </body>
 </html>
