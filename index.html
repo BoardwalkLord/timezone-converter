@@ -31,31 +31,31 @@
     
     <script>
         const timezones = {
-            "GMT-12 (Baker Island)": "Etc/GMT+12",
-            "GMT-11 (Pago Pago)": "Pacific/Pago_Pago",
-            "GMT-10 (Honolulu)": "Pacific/Honolulu",
-            "GMT-9 (Anchorage)": "America/Anchorage",
-            "GMT-8 (Los Angeles)": "America/Los_Angeles",
-            "GMT-7 (Denver)": "America/Denver",
-            "GMT-6 (Chicago)": "America/Chicago",
-            "GMT-5 (New York)": "America/New_York",
-            "GMT-4 (Caracas)": "America/Caracas",
-            "GMT-3 (Buenos Aires)": "America/Argentina/Buenos_Aires",
-            "GMT-2 (South Georgia)": "Atlantic/South_Georgia",
-            "GMT-1 (Azores)": "Atlantic/Azores",
-            "GMT+0 (London)": "Europe/London",
-            "GMT+1 (Paris)": "Europe/Paris",
-            "GMT+2 (Cairo)": "Africa/Cairo",
-            "GMT+3 (Moscow)": "Europe/Moscow",
-            "GMT+4 (Dubai)": "Asia/Dubai",
-            "GMT+5 (Karachi)": "Asia/Karachi",
-            "GMT+6 (Dhaka)": "Asia/Dhaka",
-            "GMT+7 (Bangkok)": "Asia/Bangkok",
-            "GMT+8 (Kuala Lumpur)": "Asia/Kuala_Lumpur",
-            "GMT+9 (Tokyo)": "Asia/Tokyo",
-            "GMT+10 (Sydney)": "Australia/Sydney",
-            "GMT+11 (Noumea)": "Pacific/Noumea",
-            "GMT+12 (Auckland)": "Pacific/Auckland"
+            "GMT-12 (Baker Island, US)": "Etc/GMT+12",
+            "GMT-11 (Pago Pago, American Samoa)": "Pacific/Pago_Pago",
+            "GMT-10 (Honolulu, US - HST, Hawaii Standard Time)": "Pacific/Honolulu",
+            "GMT-9 (Anchorage, US - AKST, Alaska Standard Time)": "America/Anchorage",
+            "GMT-8 (Los Angeles, US - PST, Pacific Standard Time)": "America/Los_Angeles",
+            "GMT-7 (Denver, US - MST, Mountain Standard Time)": "America/Denver",
+            "GMT-6 (Chicago, US - CST, Central Standard Time)": "America/Chicago",
+            "GMT-5 (New York, US - EST, Eastern Standard Time)": "America/New_York",
+            "GMT-4 (Caracas, Venezuela)": "America/Caracas",
+            "GMT-3 (Buenos Aires, Argentina)": "America/Argentina/Buenos_Aires",
+            "GMT-2 (South Georgia, UK)": "Atlantic/South_Georgia",
+            "GMT-1 (Azores, Portugal)": "Atlantic/Azores",
+            "GMT+0 (London, UK - GMT, Greenwich Mean Time)": "Europe/London",
+            "GMT+1 (Paris, France - CET, Central European Time)": "Europe/Paris",
+            "GMT+2 (Cairo, Egypt - EET, Eastern European Time)": "Africa/Cairo",
+            "GMT+3 (Moscow, Russia - MSK, Moscow Standard Time)": "Europe/Moscow",
+            "GMT+4 (Dubai, UAE - GST, Gulf Standard Time)": "Asia/Dubai",
+            "GMT+5 (Karachi, Pakistan - PKT, Pakistan Standard Time)": "Asia/Karachi",
+            "GMT+6 (Dhaka, Bangladesh - BST, Bangladesh Standard Time)": "Asia/Dhaka",
+            "GMT+7 (Bangkok, Thailand - ICT, Indochina Time)": "Asia/Bangkok",
+            "GMT+8 (Kuala Lumpur, Malaysia - MYT, Malaysia Time)": "Asia/Kuala_Lumpur",
+            "GMT+9 (Tokyo, Japan - JST, Japan Standard Time)": "Asia/Tokyo",
+            "GMT+10 (Sydney, Australia - AEST, Australian Eastern Standard Time)": "Australia/Sydney",
+            "GMT+11 (Noumea, New Caledonia - NCT, New Caledonia Time)": "Pacific/Noumea",
+            "GMT+12 (Auckland, New Zealand - NZST, New Zealand Standard Time)": "Pacific/Auckland"
         };
 
         function populateTimezones() {
@@ -76,6 +76,11 @@
             document.getElementById("datetime").value = localTime;
         }
         
+        function setDefaultTimezone() {
+            let userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById("fromTimezone").value = userTz;
+        }
+
         function convertTime() {
             let dateTimeInput = document.getElementById("datetime").value;
             let fromTz = document.getElementById("fromTimezone").value;
@@ -102,6 +107,7 @@
         window.onload = function() {
             populateTimezones();
             setDefaultDateTime();
+            setDefaultTimezone();
         };
     </script>
 </body>
