@@ -27,6 +27,8 @@
         
         <h3>Converted Date & Time:</h3>
         <p id="result">--</p>
+        
+        <button onclick="shareResult()">Share Result</button>
     </div>
     
     <script>
@@ -102,6 +104,21 @@
             let formattedDate = convertedDate.toLocaleString("en-US", { ...options, timeZone: toTz });
             
             document.getElementById("result").textContent = formattedDate;
+        }
+        
+        function shareResult() {
+            let resultText = document.getElementById("result").textContent;
+            if (resultText === "--") {
+                alert("No result to share");
+                return;
+            }
+            
+            let shareText = `Timezone Conversion Result: ${resultText}`;
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert("Result copied to clipboard! You can share it with your friends.");
+            }).catch(err => {
+                alert("Failed to copy result.");
+            });
         }
         
         window.onload = function() {
