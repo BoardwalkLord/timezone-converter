@@ -31,24 +31,24 @@
     
     <script>
         const timezones = {
-            "Malaysia": "Asia/Kuala_Lumpur",
-            "United States (Eastern)": "America/New_York",
-            "United States (Central)": "America/Chicago",
-            "United States (Mountain)": "America/Denver",
-            "United States (Pacific)": "America/Los_Angeles",
-            "United Kingdom": "Europe/London",
-            "France": "Europe/Paris",
-            "Japan": "Asia/Tokyo",
-            "UAE": "Asia/Dubai",
-            "Australia (Sydney)": "Australia/Sydney"
+            "Malaysia (Kuala Lumpur) GMT+8": "Asia/Kuala_Lumpur",
+            "United States (Eastern) EST GMT-5": "America/New_York",
+            "United States (Central) CST GMT-6": "America/Chicago",
+            "United States (Mountain) MST GMT-7": "America/Denver",
+            "United States (Pacific) PST GMT-8": "America/Los_Angeles",
+            "United Kingdom GMT+0": "Europe/London",
+            "France (Paris) GMT+1": "Europe/Paris",
+            "Japan (Tokyo) JST GMT+9": "Asia/Tokyo",
+            "UAE (Dubai) GST GMT+4": "Asia/Dubai",
+            "Australia (Sydney) AEST GMT+10": "Australia/Sydney"
         };
 
         function populateTimezones() {
             const fromSelect = document.getElementById("fromTimezone");
             const toSelect = document.getElementById("toTimezone");
             for (const [key, value] of Object.entries(timezones)) {
-                let option1 = new Option(`${key} (${value})`, value);
-                let option2 = new Option(`${key} (${value})`, value);
+                let option1 = new Option(`${key}`, value);
+                let option2 = new Option(`${key}`, value);
                 fromSelect.add(option1);
                 toSelect.add(option2);
             }
