@@ -1,114 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
     <title>Timezone Converter</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; }
-        select, input, button { margin: 10px; padding: 10px; width: calc(100% - 22px); box-sizing: border-box; }
+      body {
+        font-family: Arial, sans-serif;
+      }
+      form {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Timezone Converter</h2>
-        
-        <label for="datetime">Select Date & Time:</label>
-        <input type="datetime-local" id="datetime">
-        
-        <label for="fromTimezone">From Timezone:</label>
-        <select id="fromTimezone"></select>
-        
-        <label for="toTimezone">To Timezone:</label>
-        <select id="toTimezone"></select>
-        
-        <button onclick="convertTime()">Convert</button>
-        
-        <h3>Converted Date & Time:</h3>
-        <p id="result">--</p>
-    </div>
-    
+  </head>
+  <body>
+    <h1>Timezone Converter</h1>
+    <form id="timezoneForm">
+      <label for="inputTime">Date and Time (ISO format, e.g., 2025-03-08T14:00:00):</label>
+      <input type="text" id="inputTime" placeholder="2025-03-08T14:00:00">
+      <br>
+      <label for="sourceTimezone">Source Timezone:</label>
+      <select id="sourceTimezone"></select>
+      <br>
+      <label for="targetTimezone">Target Timezone:</label>
+      <select id="targetTimezone"></select>
+      <br>
+      <button type="button" id="convertButton">Convert</button>
+    </form>
+    <p id="result"></p>
     <script>
-        const timezones = {
-            "GMT-12 (Baker Island, US)": "Etc/GMT+12",
-            "GMT-11 (Pago Pago, American Samoa)": "Pacific/Pago_Pago",
-            "GMT-10 (Honolulu, US - HST, Hawaii Standard Time)": "Pacific/Honolulu",
-            "GMT-9 (Anchorage, US - AKST, Alaska Standard Time)": "America/Anchorage",
-            "GMT-8 (Los Angeles, US - PST, Pacific Standard Time)": "America/Los_Angeles",
-            "GMT-7 (Denver, US - MST, Mountain Standard Time)": "America/Denver",
-            "GMT-6 (Chicago, US - CST, Central Standard Time)": "America/Chicago",
-            "GMT-5 (New York, US - EST, Eastern Standard Time)": "America/New_York",
-            "GMT-4 (Caracas, Venezuela)": "America/Caracas",
-            "GMT-3 (Buenos Aires, Argentina)": "America/Argentina/Buenos_Aires",
-            "GMT-2 (South Georgia, UK)": "Atlantic/South_Georgia",
-            "GMT-1 (Azores, Portugal)": "Atlantic/Azores",
-            "GMT+0 (London, UK - GMT, Greenwich Mean Time)": "Europe/London",
-            "GMT+1 (Paris, France - CET, Central European Time)": "Europe/Paris",
-            "GMT+2 (Cairo, Egypt - EET, Eastern European Time)": "Africa/Cairo",
-            "GMT+3 (Moscow, Russia - MSK, Moscow Standard Time)": "Europe/Moscow",
-            "GMT+4 (Dubai, UAE - GST, Gulf Standard Time)": "Asia/Dubai",
-            "GMT+5 (Karachi, Pakistan - PKT, Pakistan Standard Time)": "Asia/Karachi",
-            "GMT+6 (Dhaka, Bangladesh - BST, Bangladesh Standard Time)": "Asia/Dhaka",
-            "GMT+7 (Bangkok, Thailand - ICT, Indochina Time)": "Asia/Bangkok",
-            "GMT+8 (Kuala Lumpur, Malaysia - MYT, Malaysia Time)": "Asia/Kuala_Lumpur",
-            "GMT+9 (Tokyo, Japan - JST, Japan Standard Time)": "Asia/Tokyo",
-            "GMT+10 (Sydney, Australia - AEST, Australian Eastern Standard Time)": "Australia/Sydney",
-            "GMT+11 (Noumea, New Caledonia - NCT, New Caledonia Time)": "Pacific/Noumea",
-            "GMT+12 (Auckland, New Zealand - NZST, New Zealand Standard Time)": "Pacific/Auckland"
-        };
+      if (typeof Temporal === 'undefined') {
+        document.getElementById('result').innerText = 'This feature requires the Temporal API, which is not supported in your browser.';
+      } else {
+        let timeZones = Temporal.TimeZone.getAvailableTimeZones();
+        timeZones.sort();
+        let sourceSelect = document.getElementById('sourceTimezone');
+        let targetSelect = document.getElementById('targetTimezone');
+        timeZones.forEach(tz => {
+          let option = document.createElement('option');
+          option.value = tz;
+          option.text = tz;
+          sourceSelect.appendChild(option.cloneNode(true));
+          targetSelect.appendChild(option);
+        });
+        // Pre-select Malaysia and Japan for testing
+        sourceSelect.value = 'Asia/Kuala_Lumpur';
+        targetSelect.value = 'Asia/Tokyo';
 
-        function populateTimezones() {
-            const fromSelect = document.getElementById("fromTimezone");
-            const toSelect = document.getElementById("toTimezone");
-            for (const [key, value] of Object.entries(timezones)) {
-                let option1 = new Option(`${key}`, value);
-                let option2 = new Option(`${key}`, value);
-                fromSelect.add(option1);
-                toSelect.add(option2);
-            }
-        }
+        document.getElementById('convertButton').addEventListener('click', function() {
+          let inputTimeString = document.getElementById('inputTime').value;
+          let sourceTimezone = document.getElementById('sourceTimezone').value;
+          let targetTimezone = document.getElementById('targetTimezone').value;
 
-        function setDefaultDateTime() {
-            let now = new Date();
-            let tzOffset = now.getTimezoneOffset() * 60000;
-            let localTime = new Date(now - tzOffset).toISOString().slice(0, 16);
-            document.getElementById("datetime").value = localTime;
-        }
-        
-        function setDefaultTimezone() {
-            let userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            document.getElementById("fromTimezone").value = userTz;
-        }
+          if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(inputTimeString)) {
+            document.getElementById('result').innerText = 'Please enter a valid ISO date and time string (YYYY-MM-DDTHH:mm:ss).';
+            return;
+          }
 
-        function convertTime() {
-            let dateTimeInput = document.getElementById("datetime").value;
-            let fromTz = document.getElementById("fromTimezone").value;
-            let toTz = document.getElementById("toTimezone").value;
-            
-            if (!dateTimeInput || !fromTz || !toTz) {
-                alert("Please enter all fields");
-                return;
-            }
-            
-            let date = new Date(dateTimeInput);
-            let fromDate = new Date(date.toLocaleString("en-US", { timeZone: fromTz }));
-            let toDate = new Date(date.toLocaleString("en-US", { timeZone: toTz }));
-            
-            let timeDiff = toDate.getTime() - fromDate.getTime();
-            let convertedDate = new Date(date.getTime() + timeDiff);
-            
-            let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
-            let formattedDate = convertedDate.toLocaleString("en-US", { ...options, timeZone: toTz });
-            
-            document.getElementById("result").textContent = formattedDate;
-        }
-        
-        window.onload = function() {
-            populateTimezones();
-            setDefaultDateTime();
-            setDefaultTimezone();
-        };
+          try {
+            // Parse input as local time in source timezone
+            let sourceZonedDateTime = Temporal.ZonedDateTime.from(inputTimeString + `[${sourceTimezone}]`);
+            let instant = sourceZonedDateTime.toInstant();
+            let targetZonedDateTime = instant.toZonedDateTimeISO(targetTimezone);
+
+            // Manual formatting for consistency
+            let monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let month = monthNames[targetZonedDateTime.month - 1];
+            let day = targetZonedDateTime.day;
+            let year = targetZonedDateTime.year;
+            let hours = String(targetZonedDateTime.hour).padStart(2, '0');
+            let minutes = String(targetZonedDateTime.minute).padStart(2, '0');
+            let seconds = String(targetZonedDateTime.second).padStart(2, '0');
+
+            let tzFormatter = new Intl.DateTimeFormat('en', { timeZone: targetTimezone, timeZoneName: 'long' });
+            let tzParts = tzFormatter.formatToParts(new Date(targetZonedDateTime.epochMilliseconds));
+            let tzName = tzParts.find(part => part.type === 'timeZoneName').value;
+
+            let formattedTime = `${month} ${day}, ${year}, ${hours}:${minutes}:${seconds}`;
+            document.getElementById('result').innerText = `${formattedTime} in ${tzName}`;
+          } catch (error) {
+            console.error('Conversion error:', error);
+            document.getElementById('result').innerText = 'Invalid input or timezone.';
+          }
+        });
+      }
     </script>
-</body>
+  </body>
 </html>
