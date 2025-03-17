@@ -508,7 +508,7 @@
                         updateSelectionUI('target', 'city');
                         convertTime();
                     },
-                    { timeout: 10000, maximumAge: 0 } // Added options for better reliability
+                    { timeout: 30000, maximumAge: 0 } // Added options for better reliability
                 );
             } else {
                 console.error("Geolocation not supported by browser");
