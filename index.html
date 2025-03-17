@@ -115,7 +115,7 @@
             <input type="text" id="sourceCity" list="cityList" placeholder="Type or select a city" class="city-input">
             
             <div class="label">Date:</div>
-            <input type="date" id="sourceDate" value="2025-03-14">
+            <input type="date" id="sourceDate" value="2025-03-17">
             
             <div class="slider-container">
                 <div class="label">Hour: <span id="sourceHourDisplay">12</span></div>
@@ -201,7 +201,6 @@
             {name: "LINT (UTC+14) - Line Islands (No DST)", offset: 14, dstRegion: null}
         ];
 
-        // Updated city to timezone mapping with coordinates
         const cityToTimezone = [
             {city: "Kabul, Afghanistan", timezone: "PKT (UTC+5) - Pakistan (No DST)", lat: 34.5553, lon: 69.2075},
             {city: "Tirana, Albania", timezone: "CET (UTC+1) - Central Europe", lat: 41.3275, lon: 19.8187},
@@ -403,7 +402,6 @@
             {city: "Sana'a, Yemen", timezone: "MSK (UTC+3) - Moscow (No DST)", lat: 15.3694, lon: 44.1910},
             {city: "Lusaka, Zambia", timezone: "CET (UTC+1) - Central Europe", lat: -15.3875, lon: 28.3228},
             {city: "Harare, Zimbabwe", timezone: "CET (UTC+1) - Central Europe", lat: -17.8252, lon: 31.0335},
-            // Additional major cities with coordinates
             {city: "Baker Island, United States", timezone: "IDLW (UTC-12) - International Date Line West", lat: 0.1936, lon: -176.4769},
             {city: "Honolulu, United States", timezone: "HST (UTC-10) - Hawaii (No DST)", lat: 21.3069, lon: -157.8583},
             {city: "Anchorage, United States", timezone: "AKST (UTC-9) - Alaska", lat: 61.2181, lon: -149.9003},
@@ -474,21 +472,25 @@
 
             cityToTimezone.forEach(({ city, lat: cityLat, lon: cityLon }) => {
                 const distance = getDistance(lat, lon, cityLat, cityLon);
+                console.log(`Distance to ${city}: ${distance.toFixed(2)} km`); // Debug log
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestCity = city;
                 }
             });
 
+            console.log(`Closest city: ${closestCity} (${minDistance.toFixed(2)} km)`);
             return closestCity;
         }
 
         // Set default target city based on user's location
         function setDefaultTargetCity() {
             if (navigator.geolocation) {
+                console.log("Requesting geolocation...");
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const { latitude, longitude } = position.coords;
+                        console.log(`User coordinates: ${latitude}, ${longitude}`);
                         const closestCity = findClosestCity(latitude, longitude);
                         targetCity.value = closestCity;
                         const tz = getTimezoneFromCity(closestCity);
@@ -499,18 +501,19 @@
                         convertTime(); // Update conversion with new target
                     },
                     (error) => {
-                        console.error("Geolocation error:", error);
-                        // Fallback to a default if geolocation fails or is denied
-                        targetCity.value = "New York, United States";
-                        targetTimezone.value = "EST (UTC-5) - Eastern (US/Canada)";
+                        console.error(`Geolocation error: ${error.message} (Code: ${error.code})`);
+                        // Fallback to Kuala Lumpur for testing
+                        targetCity.value = "Kuala Lumpur, Malaysia";
+                        targetTimezone.value = "CST (UTC+8) - China (No DST)";
                         updateSelectionUI('target', 'city');
                         convertTime();
-                    }
+                    },
+                    { timeout: 10000, maximumAge: 0 } // Added options for better reliability
                 );
             } else {
-                // Fallback if geolocation is not supported
-                targetCity.value = "New York, United States";
-                targetTimezone.value = "EST (UTC-5) - Eastern (US/Canada)";
+                console.error("Geolocation not supported by browser");
+                targetCity.value = "Kuala Lumpur, Malaysia";
+                targetTimezone.value = "CST (UTC+8) - China (No DST)";
                 updateSelectionUI('target', 'city');
                 convertTime();
             }
@@ -709,7 +712,6 @@
             const sourceChoice = document.querySelector('input[name="sourceDST"]:checked')?.value || "standard";
             const targetChoice = document.querySelector('input[name="targetDST"]:checked')?.value || "standard";
 
-            // Handle source selection
             if (sourceCity.value) {
                 const tz = getTimezoneFromCity(sourceCity.value);
                 if (tz) {
@@ -722,7 +724,6 @@
                 updateSelectionUI('source', 'timezone');
             }
 
-            // Handle target selection
             if (targetCity.value) {
                 const tz = getTimezoneFromCity(targetCity.value);
                 if (tz) {
