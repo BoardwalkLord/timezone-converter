@@ -1,4 +1,6 @@
-const timezones = [
+// Part 3A below
+
+    const timezones = [
         {name: "IDLW (UTC-12) - International Date Line West", offset: -12, dstRegion: null},
         {name: "HST (UTC-10) - Hawaii (No DST)", offset: -10, dstRegion: null},
         {name: "AKST (UTC-9) - Alaska", offset: -9, dstRegion: "US"},
@@ -261,6 +263,9 @@ const timezones = [
         {city: "Auckland, New Zealand", timezone: "NZST (UTC+12) - New Zealand", lat: -36.8485, lon: 174.7633},
         {city: "Kiritimati, Kiribati", timezone: "LINT (UTC+14) - Line Islands (No DST)", lat: 1.9876, lon: -157.4750}
     ];
+// Part 3A above
+
+// Part 3B below
     // DOM elements
     const sourceTimezone = document.getElementById('sourceTimezone');
     const targetTimezone = document.getElementById('targetTimezone');
@@ -412,135 +417,9 @@ const timezones = [
     function formatDate(date) {
         return date.toISOString().split('T')[0];
     }
-// Get nth occurrence of a day in a month
-    function getNthDayOfMonth(year, month, dayOfWeek, n) {
-        const firstDay = new Date(year, month, 1);
-        const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
-        return new Date(year, month, daysUntilFirst + 1 + (n - 1) * 7);
-    }
+// Part 3B above
 
-    // Get last occurrence of a day in a month
-    function getLastDayOfMonth(year, month, dayOfWeek) {
-        const lastDay = new Date(year, month + 1, 0);
-        const daysFromEnd = (lastDay.getDay() - dayOfWeek + 7) % 7;
-        return new Date(year, month, lastDay.getDate() - daysFromEnd);
-    }
-
-    // Get DST transition times
-    function getDSTTransitions(year, region) {
-        if (region === "US" || region === "CA") {
-            const start = getNthDayOfMonth(year, 2, 0, 2); // 2nd Sunday March
-            const end = getNthDayOfMonth(year, 10, 0, 1);  // 1st Sunday November
-            start.setHours(2, 0, 0, 0);
-            end.setHours(2, 0, 0, 0);
-            return { start, end, offset: 1, startHour: 2, endHour: 2 };
-        } else if (region === "EU") {
-            const start = getLastDayOfMonth(year, 2, 0);
-            const end = getLastDayOfMonth(year, 9, 0);
-            start.setUTCHours(1, 0, 0, 0);
-            end.setUTCHours(1, 0, 0, 0);
-            return { start, end, offset: 1, startHour: 1, endHour: 1 };
-        } else if (region === "AU") {
-            const start = getNthDayOfMonth(year, 9, 0, 1);
-            const end = getNthDayOfMonth(year + 1, 3, 0, 1);
-            start.setHours(2, 0, 0, 0);
-            end.setHours(3, 0, 0, 0);
-            return { start, end, offset: 1, startHour: 2, endHour: 3 };
-        } else if (region === "NZ") {
-            const start = getLastDayOfMonth(year, 8, 0);
-            const end = getNthDayOfMonth(year + 1, 3, 0, 1);
-            start.setHours(2, 0, 0, 0);
-            end.setHours(3, 0, 0, 0);
-            return { start, end, offset: 1, startHour: 2, endHour: 3 };
-        } else if (region === "BR") {
-            const start = getNthDayOfMonth(year, 10, 0, 3);
-            const end = getNthDayOfMonth(year + 1, 1, 0, 3);
-            start.setHours(0, 0, 0, 0);
-            end.setHours(0, 0, 0, 0);
-            return { start, end, offset: 1, startHour: 0, endHour: 0 };
-        } else if (region === "CL") {
-            const start = getNthDayOfMonth(year, 8, 0, 1);
-            const end = getNthDayOfMonth(year + 1, 3, 0, 1);
-            start.setHours(0, 0, 0, 0);
-            end.setHours(0, 0, 0, 0);
-            return { start, end, offset: -1, startHour: 0, endHour: 0 };
-        }
-        return null;
-    }
-
-    // Check DST status and handle skipped/ambiguous times
-    function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
-        const timezone = timezones.find(tz => tz.name === timezoneName);
-        let offset = timezone.offset;
-        let warning = "";
-        let isAmbiguous = false;
-        let adjustedTime = null;
-        let isSkipped = false;
-
-        if (!timezone.dstRegion) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
-
-        const year = dateTime.getFullYear();
-        const transitions = getDSTTransitions(year, timezone.dstRegion);
-        if (!transitions) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
-
-        const utcTime = new Date(dateTime.getTime() + offset * 60 * 60 * 1000);
-        let isDST = false;
-
-        if (["AU", "NZ", "BR", "CL"].includes(timezone.dstRegion) && dateTime.getMonth() < 3) {
-            const prevTransitions = getDSTTransitions(year - 1, timezone.dstRegion);
-            isDST = utcTime >= prevTransitions.start && utcTime < transitions.end;
-        } else {
-            isDST = utcTime >= transitions.start && utcTime < transitions.end;
-        }
-
-        const localHours = dateTime.getHours();
-        const localMinutes = dateTime.getMinutes();
-
-        if (Math.abs(utcTime - transitions.start) < 60 * 60 * 1000) {
-            if (localHours === transitions.startHour && localMinutes >= 0 && localMinutes < 60) {
-                const adjustedHours = transitions.startHour + Math.abs(transitions.offset);
-                adjustedTime = new Date(dateTime);
-                adjustedTime.setHours(adjustedHours, 0, 0, 0);
-                warning = `Note: This time is skipped due to DST start (spring forward). Next valid time: ${formatTime(adjustedHours, 0)}.`;
-                isSkipped = true;
-                return { offset: offset + transitions.offset, warning, isAmbiguous, adjustedTime, isSkipped };
-            }
-        }
-
-        if (Math.abs(utcTime - transitions.end) < 60 * 60 * 1000) {
-            if (localHours === (transitions.endHour - transitions.offset) && localMinutes >= 0 && localMinutes < 60) {
-                warning = "Note: This time is ambiguous due to DST end (fall back). Choose below:";
-                isAmbiguous = true;
-                if (userChoice === "dst") {
-                    isDST = true;
-                } else {
-                    isDST = false;
-                }
-            }
-        }
-
-        return { offset: isDST ? offset + transitions.offset : offset, warning, isAmbiguous, adjustedTime, isSkipped };
-    }
-
-    // Add to history with city and country
-    function addToHistory(sourceTZ, sourceTime, sourceDate, targetTZ, targetTime, targetDate) {
-        const sourceCityName = sourceCity.value || "Unknown City";
-        const targetCityName = targetCity.value || "Unknown City";
-        const li = document.createElement('li');
-        li.textContent = `${sourceCityName} (${sourceTZ}): ${sourceTime}, ${sourceDate} → ${targetCityName} (${targetTZ}): ${targetTime}, ${targetDate}`;
-        historyList.insertBefore(li, historyList.firstChild);
-        if (historyList.children.length > 10) {
-            historyList.removeChild(historyList.lastChild);
-        }
-    }
-
-    // Clear history
-    function clearHistory() {
-        while (historyList.firstChild) {
-            historyList.removeChild(historyList.firstChild);
-        }
-    }
-
+// Part 3C below
     // Convert time between timezones
     function convertTime() {
         const date = new Date(sourceDate.value);
@@ -635,6 +514,9 @@ const timezones = [
 
         addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
     }
+// Part 3C above
+
+// Part 3D below
     // Adjust source time to next valid time
     function adjustSourceTime() {
         if (sourceAdjustedTime) {
@@ -732,3 +614,5 @@ const timezones = [
     sourceCity.value = "";
     updateSelectionUI('source', 'timezone');
     setDefaultTargetCity();
+
+// Part 3D above
