@@ -582,60 +582,51 @@ function getLastDayOfMonth(year, month, dayOfWeek) {
 
 function getDSTTransitions(year, region) {
     if (region === "US" || region === "CA") {
-        const start = getNthDayOfMonth(year, 2, 0, 2); // 2nd Sunday in March
-        const end = getNthDayOfMonth(year, 10, 0, 1); // 1st Sunday in November
+        const start = getNthDayOfMonth(year, 2, 0, 2);
+        const end = getNthDayOfMonth(year, 10, 0, 1);
         start.setHours(2, 0, 0, 0);
         end.setHours(2, 0, 0, 0);
         return { start, end, offset: 1, startHour: 2, endHour: 2 };
     } else if (region === "EU") {
-        const start = getLastDayOfMonth(year, 2, 0); // Last Sunday in March
-        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
+        const start = getLastDayOfMonth(year, 2, 0);
+        const end = getLastDayOfMonth(year, 9, 0);
         start.setUTCHours(1, 0, 0, 0);
         end.setUTCHours(1, 0, 0, 0);
         return { start, end, offset: 1, startHour: 1, endHour: 1 };
     } else if (region === "AU") {
-        const start = getNthDayOfMonth(year, 9, 0, 1); // 1st Sunday in October
-        const end = getNthDayOfMonth(year + 1, 3, 0, 1); // 1st Sunday in April
+        const start = getNthDayOfMonth(year, 9, 0, 1);
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
         start.setHours(2, 0, 0, 0);
         end.setHours(3, 0, 0, 0);
         return { start, end, offset: 1, startHour: 2, endHour: 3 };
     } else if (region === "NZ") {
-        const start = getLastDayOfMonth(year, 8, 0); // Last Sunday in September
-        const end = getNthDayOfMonth(year + 1, 3, 0, 1); // 1st Sunday in April
+        const start = getLastDayOfMonth(year, 8, 0);
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
         start.setHours(2, 0, 0, 0);
         end.setHours(3, 0, 0, 0);
         return { start, end, offset: 1, startHour: 2, endHour: 3 };
     } else if (region === "BR") {
-        const start = getNthDayOfMonth(year, 10, 0, 3); // 3rd Sunday in November
-        const end = getNthDayOfMonth(year + 1, 1, 0, 3); // 3rd Sunday in February
+        const start = getNthDayOfMonth(year, 10, 0, 3);
+        const end = getNthDayOfMonth(year + 1, 1, 0, 3);
         start.setHours(0, 0, 0, 0);
         end.setHours(0, 0, 0, 0);
         return { start, end, offset: 1, startHour: 0, endHour: 0 };
     } else if (region === "CL") {
-        const start = getNthDayOfMonth(year, 8, 6, 1); // 1st Saturday in September
-        const end = getNthDayOfMonth(year + 1, 3, 6, 1); // 1st Saturday in April
+        const start = getNthDayOfMonth(year, 8, 0, 1);
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
         start.setHours(0, 0, 0, 0);
         end.setHours(0, 0, 0, 0);
-        return { start, end, offset: 1, startHour: 0, endHour: 0 }; // Chile uses UTC-3 in summer
-    } else if (region === "IL") { // Israel
-        const start = new Date(year, 2, 28); // Approx late March (Friday before last Sunday)
-        while (start.getDay() !== 5) start.setDate(start.getDate() + 1);
-        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
-        start.setHours(2, 0, 0, 0);
-        end.setHours(2, 0, 0, 0);
-        return { start, end, offset: 1, startHour: 2, endHour: 2 };
-    } else if (region === "MX") { // Mexico (most regions, since 2023 no DST in many areas, but some still use)
-        const start = getNthDayOfMonth(year, 3, 0, 1); // 1st Sunday in April
-        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
-        start.setHours(2, 0, 0, 0);
-        end.setHours(2, 0, 0, 0);
-        return { start, end, offset: 1, startHour: 2, endHour: 2 };
+        return { start, end, offset: -1, startHour: 0, endHour: 0 };
     }
     return null;
 }
 
 function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
     const timezone = timezones.find(tz => tz.name === timezoneName);
+    if (!timezone) {
+        console.error(`Timezone not found: ${timezoneName}`);
+        return { offset: 0, warning: "Invalid timezone selected", isAmbiguous: false, adjustedTime: null, isSkipped: false };
+    }
     let offset = timezone.offset;
     let warning = "";
     let isAmbiguous = false;
@@ -651,7 +642,7 @@ function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
     const utcTime = new Date(dateTime.getTime() + offset * 60 * 60 * 1000);
     let isDST = false;
 
-    if (["AU", "NZ", "BR", "CL", "IL", "MX"].includes(timezone.dstRegion) && dateTime.getMonth() < 3) {
+    if (["AU", "NZ", "BR", "CL"].includes(timezone.dstRegion) && dateTime.getMonth() < 3) {
         const prevTransitions = getDSTTransitions(year - 1, timezone.dstRegion);
         isDST = utcTime >= prevTransitions.start && utcTime < transitions.end;
     } else {
@@ -712,6 +703,12 @@ function convertTime() {
 
     const sourceChoice = document.querySelector('input[name="sourceDST"]:checked')?.value || "standard";
     const targetChoice = document.querySelector('input[name="targetDST"]:checked')?.value || "standard";
+
+    if (!sourceTimezone.value || !targetTimezone.value) {
+        sourceWarning.textContent = !sourceTimezone.value ? "Please select a source timezone" : "";
+        targetWarning.textContent = !targetTimezone.value ? "Please select a target timezone" : "";
+        return;
+    }
 
     if (sourceCity.value) {
         const tz = getTimezoneFromCity(sourceCity.value);
@@ -848,8 +845,6 @@ sourceMinute.oninput = () => {
     convertTime();
 };
 sourceDate.onchange = convertTime;
-sourceCity.oninput = () => showCityDropdown('source');
-sourceCity.onblur = () => hideCityDropdown('source');
 sourceCity.onchange = () => {
     const tz = getTimezoneFromCity(sourceCity.value);
     if (tz) {
@@ -863,8 +858,6 @@ sourceTimezone.onchange = () => {
     updateSelectionUI('source', 'timezone');
     convertTime();
 };
-targetCity.oninput = () => showCityDropdown('target');
-targetCity.onblur = () => hideCityDropdown('target');
 targetCity.onchange = () => {
     const tz = getTimezoneFromCity(targetCity.value);
     if (tz) {
@@ -885,15 +878,15 @@ targetAdjustButton.onclick = adjustTargetTime;
 document.getElementById('swapButton').onclick = swapTimezones;
 
 populateTimezones();
+populateCities();
 sourceCity.value = "London, United Kingdom";
 sourceTimezone.value = getTimezoneFromCity(sourceCity.value);
 updateSelectionUI('source', 'city');
-targetCity.value = "Shanghai, China";
+targetCity.value = "Beijing, China"; // Corrected from "Shanghai, China"
 targetTimezone.value = getTimezoneFromCity(targetCity.value);
 updateSelectionUI('target', 'city');
 sourceDate.value = formatDate(new Date());
 convertTime();
-sourceCity.focus(); // Autofocus on sourceCity
         <!--Part3D above-->
 
     </script>
