@@ -94,3 +94,9 @@ li {
     display: inline-block;
     margin-right: 15px;
 }
+#sourceSection, #targetSection {
+    margin: 20px 0;
+}
+select, input, button {
+    margin: 5px;
+}
