@@ -217,8 +217,8 @@ const timezones = [
     { name: "BIT (UTC-12) - Baker Island Time", offset: -12, dstRegion: null }
 ];
 
-// The cityToTimezone array will follow in subsequent sections
-        const cityToTimezone = [
+const cityToTimezone = [
+    // Africa (54)
     { city: "Algiers, Algeria", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Luanda, Angola", timezone: "WAT (UTC+1) - West Africa Time" },
     { city: "Porto-Novo, Benin", timezone: "WAT (UTC+1) - West Africa Time" },
@@ -251,7 +251,7 @@ const timezones = [
     { city: "Lilongwe, Malawi", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "Bamako, Mali", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
     { city: "Nouakchott, Mauritania", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
-    { city: "Port Louis, Mauritius", timezone: "GET (UTC+4) - Georgia Standard Time" }, // Mauritius uses UTC+4
+    { city: "Port Louis, Mauritius", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Rabat, Morocco", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Maputo, Mozambique", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "Windhoek, Namibia", timezone: "CAT (UTC+2) - Central Africa Time" },
@@ -260,10 +260,10 @@ const timezones = [
     { city: "Kigali, Rwanda", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "São Tomé, São Tomé and Príncipe", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
     { city: "Dakar, Senegal", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
-    { city: "Victoria, Seychelles", timezone: "GET (UTC+4) - Georgia Standard Time" }, // Seychelles uses UTC+4
+    { city: "Victoria, Seychelles", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Freetown, Sierra Leone", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
     { city: "Mogadishu, Somalia", timezone: "EAT (UTC+3) - East Africa Time" },
-    { city: "Pretoria, South Africa", timezone: "CAT (UTC+2) - Central Africa Time" }, // Administrative capital
+    { city: "Pretoria, South Africa", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "Juba, South Sudan", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "Khartoum, Sudan", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "Dodoma, Tanzania", timezone: "EAT (UTC+3) - East Africa Time" },
@@ -272,34 +272,35 @@ const timezones = [
     { city: "Kampala, Uganda", timezone: "EAT (UTC+3) - East Africa Time" },
     { city: "Lusaka, Zambia", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "Harare, Zimbabwe", timezone: "CAT (UTC+2) - Central Africa Time" },
-    { city: "Kabul, Afghanistan", timezone: "GET (UTC+4) - Georgia Standard Time" }, // UTC+4:30 approximated to UTC+4
+    // Asia (49)
+    { city: "Kabul, Afghanistan", timezone: "GET (UTC+4) - Georgia Standard Time" }, // Approx UTC+4:30
     { city: "Yerevan, Armenia", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Baku, Azerbaijan", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Manama, Bahrain", timezone: "MSK (UTC+3) - Moscow Time" },
-    { city: "Dhaka, Bangladesh", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // UTC+6 approximated to UTC+7
-    { city: "Thimphu, Bhutan", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // UTC+6 approximated to UTC+7
+    { city: "Dhaka, Bangladesh", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // Approx UTC+6
+    { city: "Thimphu, Bhutan", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // Approx UTC+6
     { city: "Bandar Seri Begawan, Brunei", timezone: "CST (UTC+8) - China Standard Time" },
     { city: "Phnom Penh, Cambodia", timezone: "ICT (UTC+7) - Indochina Time" },
     { city: "Beijing, China", timezone: "CST (UTC+8) - China Standard Time" },
     { city: "Nicosia, Cyprus", timezone: "EET (UTC+2) - Eastern European Time" },
     { city: "Tbilisi, Georgia", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "New Delhi, India", timezone: "IST (UTC+5:30) - India Standard Time" },
-    { city: "Jakarta, Indonesia", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // Western Indonesia
-    { city: "Tehran, Iran", timezone: "MSK (UTC+3) - Moscow Time" }, // UTC+3:30 approximated to UTC+3
+    { city: "Jakarta, Indonesia", timezone: "WIB (UTC+7) - Western Indonesia Time" },
+    { city: "Tehran, Iran", timezone: "MSK (UTC+3) - Moscow Time" }, // Approx UTC+3:30
     { city: "Baghdad, Iraq", timezone: "MSK (UTC+3) - Moscow Time" },
     { city: "Jerusalem, Israel", timezone: "EET (UTC+2) - Eastern European Time" },
     { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" },
     { city: "Amman, Jordan", timezone: "EET (UTC+2) - Eastern European Time" },
-    { city: "Astana, Kazakhstan", timezone: "PKT (UTC+5) - Pakistan Standard Time" }, // UTC+5 for capital region
+    { city: "Astana, Kazakhstan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
     { city: "Kuwait City, Kuwait", timezone: "MSK (UTC+3) - Moscow Time" },
-    { city: "Bishkek, Kyrgyzstan", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // UTC+6 approximated to UTC+7
+    { city: "Bishkek, Kyrgyzstan", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // Approx UTC+6
     { city: "Vientiane, Laos", timezone: "ICT (UTC+7) - Indochina Time" },
     { city: "Beirut, Lebanon", timezone: "EET (UTC+2) - Eastern European Time" },
     { city: "Kuala Lumpur, Malaysia", timezone: "CST (UTC+8) - China Standard Time" },
     { city: "Malé, Maldives", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
     { city: "Ulaanbaatar, Mongolia", timezone: "CST (UTC+8) - China Standard Time" },
-    { city: "Naypyidaw, Myanmar", timezone: "ICT (UTC+7) - Indochina Time" }, // UTC+6:30 approximated to UTC+7
-    { city: "Kathmandu, Nepal", timezone: "PKT (UTC+5) - Pakistan Standard Time" }, // UTC+5:45 approximated to UTC+5
+    { city: "Naypyidaw, Myanmar", timezone: "ICT (UTC+7) - Indochina Time" }, // Approx UTC+6:30
+    { city: "Kathmandu, Nepal", timezone: "PKT (UTC+5) - Pakistan Standard Time" }, // Approx UTC+5:45
     { city: "Pyongyang, North Korea", timezone: "JST (UTC+9) - Japan Standard Time" },
     { city: "Muscat, Oman", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Islamabad, Pakistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
@@ -321,6 +322,7 @@ const timezones = [
     { city: "Tashkent, Uzbekistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
     { city: "Hanoi, Vietnam", timezone: "ICT (UTC+7) - Indochina Time" },
     { city: "Sana'a, Yemen", timezone: "MSK (UTC+3) - Moscow Time" },
+    // Europe (44)
     { city: "Tirana, Albania", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Andorra la Vella, Andorra", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Vienna, Austria", timezone: "CET (UTC+1) - Central European Time" },
@@ -366,6 +368,7 @@ const timezones = [
     { city: "Kyiv, Ukraine", timezone: "EET (UTC+2) - Eastern European Time" },
     { city: "London, United Kingdom", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
     { city: "Vatican City, Vatican City", timezone: "CET (UTC+1) - Central European Time" },
+    // North America (23)
     { city: "Saint John's, Antigua and Barbuda", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Nassau, Bahamas", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
     { city: "Bridgetown, Barbados", timezone: "AST (UTC-4) - Atlantic Standard Time" },
@@ -389,9 +392,10 @@ const timezones = [
     { city: "Kingstown, Saint Vincent and the Grenadines", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Port of Spain, Trinidad and Tobago", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Washington, D.C., United States", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    // Oceania (14)
     { city: "Canberra, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
     { city: "Suva, Fiji", timezone: "FJST (UTC+12) - Fiji Standard Time" },
-    { city: "Tarawa, Kiribati", timezone: "KST (UTC+14) - Kiribati Standard Time" }, // Line Islands
+    { city: "Tarawa, Kiribati", timezone: "KST (UTC+14) - Kiribati Standard Time" },
     { city: "Majuro, Marshall Islands", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
     { city: "Palikir, Federated States of Micronesia", timezone: "VUT (UTC+11) - Vanuatu Time" },
     { city: "Yaren, Nauru", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
@@ -403,6 +407,7 @@ const timezones = [
     { city: "Nuku'alofa, Tonga", timezone: "TOT (UTC+13) - Tonga Time" },
     { city: "Funafuti, Tuvalu", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
     { city: "Port Vila, Vanuatu", timezone: "VUT (UTC+11) - Vanuatu Time" },
+    // South America (12)
     { city: "Buenos Aires, Argentina", timezone: "ART (UTC-3) - Argentina Time" },
     { city: "La Paz, Bolivia", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Brasília, Brazil", timezone: "BRT (UTC-3) - Brasília Time" },
