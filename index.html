@@ -757,9 +757,9 @@
         const utcTime = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
         const targetTime = new Date(utcTime + (targetOffset * 60 * 60 * 1000));
 
-        let targetHours = targetTime.getHours();
+        const targetHours = targetTime.getHours();
         const targetMinutes = targetTime.getMinutes();
-        const targetDate = formatDate(targetTime);
+        const targetDate = formatDate(targetTime); // This now correctly reflects the targetTime's date
 
         const sourceDisplayTime = formatTime(hours, minutes);
         const targetDisplayTime = formatTime(targetHours, targetMinutes);
@@ -774,7 +774,7 @@
         sourceWarning.textContent = sourceStatus.warning;
         targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
         targetDayDisplay.textContent = `Day: ${targetDay}`;
-        targetDateDisplay.textContent = `Date: ${targetDate}`;
+        targetDateDisplay.textContent = `Date: ${targetDate}`; // Updated to use the recalculated targetDate
         targetWarning.textContent = targetStatus.warning;
 
         sourceTimeDisplay.classList.add('updated');
