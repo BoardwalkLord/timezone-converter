@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timezone Converter</title>
     <style>
-        /* Part2 CSS below */
         body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
@@ -38,7 +37,6 @@ h1 {
     padding: 15px;
     background-color: #f9f9f9;
     border-radius: 5px;
-    position: relative; /* For dropdown positioning */
 }
 
 h2 {
@@ -115,33 +113,6 @@ button:hover {
 #clearHistory {
     margin-top: 10px;
 }
-
-/* New Autocomplete Styles */
-.dropdown {
-    position: absolute;
-    width: 100%;
-    max-height: 200px;
-    overflow-y: auto;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
-.dropdown-item {
-    padding: 8px;
-    cursor: pointer;
-}
-
-.dropdown-item:hover {
-    background-color: #f0f0f0;
-}
-
-.dropdown-item small {
-    color: #666;
-}
-        /* Part2 CSS above */
     </style>
 </head>
 <body>
@@ -151,7 +122,7 @@ button:hover {
             <div class="source">
                 <h2>Source</h2>
                 <label for="sourceCity">City:</label>
-                <input type="text" id="sourceCity" list="sourceCityList">
+                <input type="text" id="sourceCity" list="sourceCityList" autofocus>
                 <datalist id="sourceCityList"></datalist>
                 <label for="sourceTimezone">Timezone:</label>
                 <select id="sourceTimezone"></select>
@@ -200,8 +171,7 @@ button:hover {
         </div>
     </div>
     <script>
-            //Part3A below
-const timezones = [
+        const timezones = [
     { name: "KST (UTC+14) - Kiribati Standard Time", offset: 14, dstRegion: null },
     { name: "CHADT (UTC+13:45) - Chatham Daylight Time", offset: 13.75, dstRegion: "NZ" },
     { name: "TOT (UTC+13) - Tonga Time", offset: 13, dstRegion: null },
@@ -218,6 +188,7 @@ const timezones = [
     { name: "GET (UTC+4) - Georgia Standard Time", offset: 4, dstRegion: null },
     { name: "MSK (UTC+3) - Moscow Time", offset: 3, dstRegion: null },
     { name: "EAT (UTC+3) - East Africa Time", offset: 3, dstRegion: null },
+    { name: "IST (UTC+2) - Israel Standard Time", offset: 2, dstRegion: "IL" }, // Added for Israel
     { name: "EET (UTC+2) - Eastern European Time", offset: 2, dstRegion: "EU" },
     { name: "CAT (UTC+2) - Central Africa Time", offset: 2, dstRegion: null },
     { name: "CET (UTC+1) - Central European Time", offset: 1, dstRegion: "EU" },
@@ -234,6 +205,7 @@ const timezones = [
     { name: "CLT (UTC-4) - Chile Standard Time", offset: -4, dstRegion: "CL" },
     { name: "EST (UTC-5) - Eastern Standard Time (US)", offset: -5, dstRegion: "US" },
     { name: "CST (UTC-6) - Central Standard Time (US)", offset: -6, dstRegion: "US" },
+    { name: "CST (UTC-6) - Central Standard Time (Mexico)", offset: -6, dstRegion: "MX" }, // Added for Mexico
     { name: "MST (UTC-7) - Mountain Standard Time (US)", offset: -7, dstRegion: "US" },
     { name: "PST (UTC-8) - Pacific Standard Time (US)", offset: -8, dstRegion: "US" },
     { name: "AKST (UTC-9) - Alaska Standard Time", offset: -9, dstRegion: "US" },
@@ -243,7 +215,6 @@ const timezones = [
 ];
 
 const cityToTimezone = [
-    // Africa (54)
     { city: "Algiers, Algeria", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Luanda, Angola", timezone: "WAT (UTC+1) - West Africa Time" },
     { city: "Porto-Novo, Benin", timezone: "WAT (UTC+1) - West Africa Time" },
@@ -297,13 +268,12 @@ const cityToTimezone = [
     { city: "Kampala, Uganda", timezone: "EAT (UTC+3) - East Africa Time" },
     { city: "Lusaka, Zambia", timezone: "CAT (UTC+2) - Central Africa Time" },
     { city: "Harare, Zimbabwe", timezone: "CAT (UTC+2) - Central Africa Time" },
-    // Asia (49)
-    { city: "Kabul, Afghanistan", timezone: "GET (UTC+4) - Georgia Standard Time" }, // Approx UTC+4:30
+    { city: "Kabul, Afghanistan", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Yerevan, Armenia", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Baku, Azerbaijan", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Manama, Bahrain", timezone: "MSK (UTC+3) - Moscow Time" },
-    { city: "Dhaka, Bangladesh", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // Approx UTC+6
-    { city: "Thimphu, Bhutan", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // Approx UTC+6
+    { city: "Dhaka, Bangladesh", timezone: "WIB (UTC+7) - Western Indonesia Time" },
+    { city: "Thimphu, Bhutan", timezone: "WIB (UTC+7) - Western Indonesia Time" },
     { city: "Bandar Seri Begawan, Brunei", timezone: "CST (UTC+8) - China Standard Time" },
     { city: "Phnom Penh, Cambodia", timezone: "ICT (UTC+7) - Indochina Time" },
     { city: "Beijing, China", timezone: "CST (UTC+8) - China Standard Time" },
@@ -311,21 +281,21 @@ const cityToTimezone = [
     { city: "Tbilisi, Georgia", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "New Delhi, India", timezone: "IST (UTC+5:30) - India Standard Time" },
     { city: "Jakarta, Indonesia", timezone: "WIB (UTC+7) - Western Indonesia Time" },
-    { city: "Tehran, Iran", timezone: "MSK (UTC+3) - Moscow Time" }, // Approx UTC+3:30
+    { city: "Tehran, Iran", timezone: "MSK (UTC+3) - Moscow Time" },
     { city: "Baghdad, Iraq", timezone: "MSK (UTC+3) - Moscow Time" },
-    { city: "Jerusalem, Israel", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Jerusalem, Israel", timezone: "IST (UTC+2) - Israel Standard Time" }, // Updated
     { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" },
     { city: "Amman, Jordan", timezone: "EET (UTC+2) - Eastern European Time" },
     { city: "Astana, Kazakhstan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
     { city: "Kuwait City, Kuwait", timezone: "MSK (UTC+3) - Moscow Time" },
-    { city: "Bishkek, Kyrgyzstan", timezone: "WIB (UTC+7) - Western Indonesia Time" }, // Approx UTC+6
+    { city: "Bishkek, Kyrgyzstan", timezone: "WIB (UTC+7) - Western Indonesia Time" },
     { city: "Vientiane, Laos", timezone: "ICT (UTC+7) - Indochina Time" },
     { city: "Beirut, Lebanon", timezone: "EET (UTC+2) - Eastern European Time" },
     { city: "Kuala Lumpur, Malaysia", timezone: "CST (UTC+8) - China Standard Time" },
     { city: "Malé, Maldives", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
     { city: "Ulaanbaatar, Mongolia", timezone: "CST (UTC+8) - China Standard Time" },
-    { city: "Naypyidaw, Myanmar", timezone: "ICT (UTC+7) - Indochina Time" }, // Approx UTC+6:30
-    { city: "Kathmandu, Nepal", timezone: "PKT (UTC+5) - Pakistan Standard Time" }, // Approx UTC+5:45
+    { city: "Naypyidaw, Myanmar", timezone: "ICT (UTC+7) - Indochina Time" },
+    { city: "Kathmandu, Nepal", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
     { city: "Pyongyang, North Korea", timezone: "JST (UTC+9) - Japan Standard Time" },
     { city: "Muscat, Oman", timezone: "GET (UTC+4) - Georgia Standard Time" },
     { city: "Islamabad, Pakistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
@@ -347,7 +317,6 @@ const cityToTimezone = [
     { city: "Tashkent, Uzbekistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
     { city: "Hanoi, Vietnam", timezone: "ICT (UTC+7) - Indochina Time" },
     { city: "Sana'a, Yemen", timezone: "MSK (UTC+3) - Moscow Time" },
-    // Europe (44)
     { city: "Tirana, Albania", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Andorra la Vella, Andorra", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Vienna, Austria", timezone: "CET (UTC+1) - Central European Time" },
@@ -393,7 +362,6 @@ const cityToTimezone = [
     { city: "Kyiv, Ukraine", timezone: "EET (UTC+2) - Eastern European Time" },
     { city: "London, United Kingdom", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
     { city: "Vatican City, Vatican City", timezone: "CET (UTC+1) - Central European Time" },
-    // North America (23)
     { city: "Saint John's, Antigua and Barbuda", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Nassau, Bahamas", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
     { city: "Bridgetown, Barbados", timezone: "AST (UTC-4) - Atlantic Standard Time" },
@@ -409,7 +377,7 @@ const cityToTimezone = [
     { city: "Port-au-Prince, Haiti", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
     { city: "Tegucigalpa, Honduras", timezone: "CST (UTC-6) - Central Standard Time (US)" },
     { city: "Kingston, Jamaica", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
-    { city: "Mexico City, Mexico", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Mexico City, Mexico", timezone: "CST (UTC-6) - Central Standard Time (Mexico)" }, // Updated
     { city: "Managua, Nicaragua", timezone: "CST (UTC-6) - Central Standard Time (US)" },
     { city: "Panama City, Panama", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
     { city: "Basseterre, Saint Kitts and Nevis", timezone: "AST (UTC-4) - Atlantic Standard Time" },
@@ -417,7 +385,6 @@ const cityToTimezone = [
     { city: "Kingstown, Saint Vincent and the Grenadines", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Port of Spain, Trinidad and Tobago", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Washington, D.C., United States", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
-    // Oceania (14)
     { city: "Canberra, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
     { city: "Suva, Fiji", timezone: "FJST (UTC+12) - Fiji Standard Time" },
     { city: "Tarawa, Kiribati", timezone: "KST (UTC+14) - Kiribati Standard Time" },
@@ -432,7 +399,6 @@ const cityToTimezone = [
     { city: "Nuku'alofa, Tonga", timezone: "TOT (UTC+13) - Tonga Time" },
     { city: "Funafuti, Tuvalu", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
     { city: "Port Vila, Vanuatu", timezone: "VUT (UTC+11) - Vanuatu Time" },
-    // South America (12)
     { city: "Buenos Aires, Argentina", timezone: "ART (UTC-3) - Argentina Time" },
     { city: "La Paz, Bolivia", timezone: "AST (UTC-4) - Atlantic Standard Time" },
     { city: "Brasília, Brazil", timezone: "BRT (UTC-3) - Brasília Time" },
@@ -446,9 +412,7 @@ const cityToTimezone = [
     { city: "Montevideo, Uruguay", timezone: "ART (UTC-3) - Argentina Time" },
     { city: "Caracas, Venezuela", timezone: "AST (UTC-4) - Atlantic Standard Time" }
 ];
-        //Part3A above
-        //Part3B below
-const sourceTimezone = document.getElementById('sourceTimezone');
+        const sourceTimezone = document.getElementById('sourceTimezone');
 const targetTimezone = document.getElementById('targetTimezone');
 const sourceCity = document.getElementById('sourceCity');
 const targetCity = document.getElementById('targetCity');
@@ -475,10 +439,6 @@ const clearHistoryButton = document.getElementById('clearHistory');
 let sourceAdjustedTime = null;
 let targetAdjustedTime = null;
 
-// Debug logs to check DOM elements
-console.log('sourceCityList:', sourceCityList);
-console.log('targetCityList:', targetCityList);
-
 function populateTimezones() {
     timezones.forEach(tz => {
         const option1 = document.createElement('option');
@@ -500,8 +460,20 @@ function populateCities() {
         const option2 = document.createElement('option');
         option1.value = option2.value = city.city;
         option1.textContent = option2.textContent = city.city;
-        sourceCityList.appendChild(option1); // Line ~498
+        sourceCityList.appendChild(option1);
         targetCityList.appendChild(option2);
+    });
+}
+
+function filterCities(inputElement, datalistElement) {
+    const input = inputElement.value.toLowerCase();
+    datalistElement.innerHTML = '';
+    const filteredCities = cityToTimezone.filter(city => city.city.toLowerCase().includes(input));
+    filteredCities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city.city;
+        option.textContent = city.city;
+        datalistElement.appendChild(option);
     });
 }
 
@@ -535,11 +507,8 @@ function updateSelectionUI(type, changed) {
             tzSelect.value = tz;
         }
     }
-}        
-
-        //Part3B above
-        //Part3C below
-function getNthDayOfMonth(year, month, dayOfWeek, n) {
+}
+        function getNthDayOfMonth(year, month, dayOfWeek, n) {
     const firstDay = new Date(year, month, 1);
     const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
     return new Date(year, month, daysUntilFirst + 1 + (n - 1) * 7);
@@ -553,41 +522,54 @@ function getLastDayOfMonth(year, month, dayOfWeek) {
 
 function getDSTTransitions(year, region) {
     if (region === "US" || region === "CA") {
-        const start = getNthDayOfMonth(year, 2, 0, 2);
-        const end = getNthDayOfMonth(year, 10, 0, 1);
+        const start = getNthDayOfMonth(year, 2, 0, 2); // 2nd Sunday in March
+        const end = getNthDayOfMonth(year, 10, 0, 1); // 1st Sunday in November
         start.setHours(2, 0, 0, 0);
         end.setHours(2, 0, 0, 0);
         return { start, end, offset: 1, startHour: 2, endHour: 2 };
     } else if (region === "EU") {
-        const start = getLastDayOfMonth(year, 2, 0);
-        const end = getLastDayOfMonth(year, 9, 0);
+        const start = getLastDayOfMonth(year, 2, 0); // Last Sunday in March
+        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
         start.setUTCHours(1, 0, 0, 0);
         end.setUTCHours(1, 0, 0, 0);
         return { start, end, offset: 1, startHour: 1, endHour: 1 };
     } else if (region === "AU") {
-        const start = getNthDayOfMonth(year, 9, 0, 1);
-        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
+        const start = getNthDayOfMonth(year, 9, 0, 1); // 1st Sunday in October
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1); // 1st Sunday in April
         start.setHours(2, 0, 0, 0);
         end.setHours(3, 0, 0, 0);
         return { start, end, offset: 1, startHour: 2, endHour: 3 };
     } else if (region === "NZ") {
-        const start = getLastDayOfMonth(year, 8, 0);
-        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
+        const start = getLastDayOfMonth(year, 8, 0); // Last Sunday in September
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1); // 1st Sunday in April
         start.setHours(2, 0, 0, 0);
         end.setHours(3, 0, 0, 0);
         return { start, end, offset: 1, startHour: 2, endHour: 3 };
     } else if (region === "BR") {
-        const start = getNthDayOfMonth(year, 10, 0, 3);
-        const end = getNthDayOfMonth(year + 1, 1, 0, 3);
+        const start = getNthDayOfMonth(year, 10, 0, 3); // 3rd Sunday in November
+        const end = getNthDayOfMonth(year + 1, 1, 0, 3); // 3rd Sunday in February
         start.setHours(0, 0, 0, 0);
         end.setHours(0, 0, 0, 0);
         return { start, end, offset: 1, startHour: 0, endHour: 0 };
     } else if (region === "CL") {
-        const start = getNthDayOfMonth(year, 8, 0, 1);
-        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
+        const start = getNthDayOfMonth(year, 8, 6, 2); // 2nd Saturday in September
+        const end = getNthDayOfMonth(year + 1, 3, 6, 2); // 2nd Saturday in April
         start.setHours(0, 0, 0, 0);
         end.setHours(0, 0, 0, 0);
-        return { start, end, offset: -1, startHour: 0, endHour: 0 };
+        return { start, end, offset: 1, startHour: 0, endHour: 0 };
+    } else if (region === "IL") { // Israel
+        const start = new Date(year, 2, 28);
+        while (start.getDay() !== 5) start.setDate(start.getDate() + 1); // Last Friday before April
+        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
+        start.setHours(2, 0, 0, 0);
+        end.setHours(2, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 2 };
+    } else if (region === "MX") { // Mexico (some regions)
+        const start = getNthDayOfMonth(year, 3, 0, 1); // 1st Sunday in April
+        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
+        start.setHours(2, 0, 0, 0);
+        end.setHours(2, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 2 };
     }
     return null;
 }
@@ -613,7 +595,7 @@ function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
     const utcTime = new Date(dateTime.getTime() + offset * 60 * 60 * 1000);
     let isDST = false;
 
-    if (["AU", "NZ", "BR", "CL"].includes(timezone.dstRegion) && dateTime.getMonth() < 3) {
+    if (["AU", "NZ", "BR", "CL", "IL", "MX"].includes(timezone.dstRegion) && dateTime.getMonth() < 3) {
         const prevTransitions = getDSTTransitions(year - 1, timezone.dstRegion);
         isDST = utcTime >= prevTransitions.start && utcTime < transitions.end;
     } else {
@@ -732,11 +714,6 @@ function convertTime() {
 
     const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-    console.log("Source Local Time:", `${formatTime(hours, minutes)} ${sourceDate.value} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`);
-    console.log("Target Local Time:", `${formatTime(targetHours, targetMinutes)} ${targetDate} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`);
-    console.log("Target Date:", targetDate);
-    console.log("Target Day (calculated):", daysOfWeek[targetTime.getDay()]);
-
     const sourceDisplayTime = formatTime(hours, minutes);
     const targetDisplayTime = formatTime(targetHours, targetMinutes);
 
@@ -760,10 +737,7 @@ function convertTime() {
 
     addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
 }
-        //Part3C above
-        //Part3D below
-        
-function adjustSourceTime() {
+        function adjustSourceTime() {
     if (sourceAdjustedTime) {
         sourceHour.value = sourceAdjustedTime.getHours();
         sourceMinute.value = sourceAdjustedTime.getMinutes();
@@ -817,6 +791,16 @@ sourceMinute.oninput = () => {
     convertTime();
 };
 sourceDate.onchange = convertTime;
+
+sourceCity.oninput = () => {
+    filterCities(sourceCity, sourceCityList);
+    const tz = getTimezoneFromCity(sourceCity.value);
+    if (tz) {
+        sourceTimezone.value = tz;
+        updateSelectionUI('source', 'city');
+        convertTime();
+    }
+};
 sourceCity.onchange = () => {
     const tz = getTimezoneFromCity(sourceCity.value);
     if (tz) {
@@ -829,6 +813,16 @@ sourceTimezone.onchange = () => {
     sourceCity.value = '';
     updateSelectionUI('source', 'timezone');
     convertTime();
+};
+
+targetCity.oninput = () => {
+    filterCities(targetCity, targetCityList);
+    const tz = getTimezoneFromCity(targetCity.value);
+    if (tz) {
+        targetTimezone.value = tz;
+        updateSelectionUI('target', 'city');
+        convertTime();
+    }
 };
 targetCity.onchange = () => {
     const tz = getTimezoneFromCity(targetCity.value);
@@ -843,24 +837,26 @@ targetTimezone.onchange = () => {
     updateSelectionUI('target', 'timezone');
     convertTime();
 };
+
 sourceDSTChoice.onchange = convertTime;
 targetDSTChoice.onchange = convertTime;
 sourceAdjustButton.onclick = adjustSourceTime;
 targetAdjustButton.onclick = adjustTargetTime;
 document.getElementById('swapButton').onclick = swapTimezones;
+clearHistoryButton.onclick = clearHistory;
 
 populateTimezones();
 populateCities();
 sourceCity.value = "London, United Kingdom";
 sourceTimezone.value = getTimezoneFromCity(sourceCity.value);
 updateSelectionUI('source', 'city');
-targetCity.value = "Beijing, China"; // Corrected from "Shanghai, China"
+targetCity.value = "Beijing, China";
 targetTimezone.value = getTimezoneFromCity(targetCity.value);
 updateSelectionUI('target', 'city');
 sourceDate.value = formatDate(new Date());
 convertTime();
-        //Part3D above
-
+sourceCity.focus(); // Optional if using autofocus in HTML
+        
     </script>
 </body>
 </html>
