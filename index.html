@@ -127,7 +127,9 @@
             { name: "PST (UTC-8) - Pacific Standard Time", offset: -8, dstRegion: "US" },
             { name: "CET (UTC+1) - Central European Time", offset: 1, dstRegion: "EU" },
             { name: "EET (UTC+2) - Eastern European Time", offset: 2, dstRegion: "EU" },
-            { name: "CST (UTC+8) - China (No DST)", offset: 8, dstRegion: null }
+            { name: "CST (UTC+8) - China (No DST)", offset: 8, dstRegion: null },
+            { name: "IST (UTC+5:30) - India Standard Time", offset: 5.5, dstRegion: null },
+            { name: "JST (UTC+9) - Japan Standard Time", offset: 9, dstRegion: null }
             // Add more timezones as needed
         ];
 
@@ -139,7 +141,9 @@
             { city: "London, UK", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
             { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
             { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
-            { city: "Shanghai, China", timezone: "CST (UTC+8) - China (No DST)" }
+            { city: "Shanghai, China", timezone: "CST (UTC+8) - China (No DST)" },
+            { city: "Mumbai, India", timezone: "IST (UTC+5:30) - India Standard Time" },
+            { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" }
             // Add more cities as needed
         ];
 
@@ -217,15 +221,6 @@
             });
         }
 
-        function setDefaultTargetCity() {
-            targetCity.value = "Shanghai, China";
-            const tz = getTimezoneFromCity(targetCity.value);
-            if (tz) {
-                targetTimezone.value = tz;
-            }
-            convertTime();
-        }
-
         function getTimezoneFromCity(city) {
             const entry = cityToTimezone.find(c => c.city === city);
             return entry ? entry.timezone : null;
@@ -241,6 +236,37 @@
             }
         }
 
+        function setDefaultTargetToUserLocation() {
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            let matchedTimezone = null;
+            let matchedCity = '';
+
+            // Map browser timezone (IANA format) to our timezones
+            const timezoneMap = {
+                "America/New_York": "EST (UTC-5) - Eastern Standard Time",
+                "America/Chicago": "CST (UTC-6) - Central Standard Time",
+                "America/Denver": "MST (UTC-7) - Mountain Standard Time",
+                "America/Los_Angeles": "PST (UTC-8) - Pacific Standard Time",
+                "Europe/London": "UTC (UTC+0) - Coordinated Universal Time",
+                "Europe/Paris": "CET (UTC+1) - Central European Time",
+                "Europe/Athens": "EET (UTC+2) - Eastern European Time",
+                "Asia/Shanghai": "CST (UTC+8) - China (No DST)",
+                "Asia/Kolkata": "IST (UTC+5:30) - India Standard Time",
+                "Asia/Tokyo": "JST (UTC+9) - Japan Standard Time"
+            };
+
+            matchedTimezone = timezoneMap[userTimezone] || "UTC (UTC+0) - Coordinated Universal Time"; // Fallback to UTC
+            targetTimezone.value = matchedTimezone;
+
+            // Find a matching city
+            const cityEntry = cityToTimezone.find(c => c.timezone === matchedTimezone);
+            matchedCity = cityEntry ? cityEntry.city : '';
+            targetCity.value = matchedCity;
+
+            updateSelectionUI('target', 'city');
+            convertTime();
+        }
+
         // Part 3C: DST and Time Conversion Logic
         function getNthDayOfMonth(year, month, dayOfWeek, n) {
             const firstDay = new Date(year, month, 1);
@@ -254,7 +280,7 @@
             return new Date(year, month, lastDay.getDate() - daysFromEnd);
         }
 
-        function getDSTTransitions(year, region) {
+                function getDSTTransitions(year, region) {
             if (region === "US" || region === "CA") {
                 const start = getNthDayOfMonth(year, 2, 0, 2);
                 const end = getNthDayOfMonth(year, 10, 0, 1);
@@ -478,12 +504,12 @@
         };
         sourceDate.onchange = convertTime;
         sourceTimezone.onchange = () => {
-            sourceCity.value = '';
+            sourceCity.value = ''; // Clear city when timezone is manually selected
             updateSelectionUI('source', 'timezone');
             convertTime();
         };
         targetTimezone.onchange = () => {
-            targetCity.value = '';
+            targetCity.value = ''; // Clear city when timezone is manually selected
             updateSelectionUI('target', 'timezone');
             convertTime();
         };
@@ -515,7 +541,7 @@
         sourceTimezone.value = "UTC (UTC+0) - Coordinated Universal Time";
         sourceCity.value = "";
         updateSelectionUI('source', 'timezone');
-        setDefaultTargetCity();
+        setDefaultTargetToUserLocation();
     </script>
 </body>
 </html>
