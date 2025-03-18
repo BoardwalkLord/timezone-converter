@@ -117,6 +117,405 @@
         <p>Unlike clunky apps or confusing websites, our Timezone Converter offers a clean, intuitive interface with accurate results. It’s lightweight, fast-loading, and perfect for professionals, travelers, or anyone needing quick timezone math. Plus, being open-source means you can trust its reliability and even contribute to its development!</p>
     </section>
 
-    <script src="script.js"></script> <!-- Placeholder for Part 3 -->
+    <script>
+        // Part 3A: Data (Timezones and Cities)
+        const timezones = [
+            { name: "UTC (UTC+0) - Coordinated Universal Time", offset: 0, dstRegion: null },
+            { name: "EST (UTC-5) - Eastern Standard Time", offset: -5, dstRegion: "US" },
+            { name: "CST (UTC-6) - Central Standard Time", offset: -6, dstRegion: "US" },
+            { name: "MST (UTC-7) - Mountain Standard Time", offset: -7, dstRegion: "US" },
+            { name: "PST (UTC-8) - Pacific Standard Time", offset: -8, dstRegion: "US" },
+            { name: "CET (UTC+1) - Central European Time", offset: 1, dstRegion: "EU" },
+            { name: "EET (UTC+2) - Eastern European Time", offset: 2, dstRegion: "EU" },
+            { name: "CST (UTC+8) - China (No DST)", offset: 8, dstRegion: null }
+            // Add more timezones as needed
+        ];
+
+        const cityToTimezone = [
+            { city: "New York, USA", timezone: "EST (UTC-5) - Eastern Standard Time" },
+            { city: "Chicago, USA", timezone: "CST (UTC-6) - Central Standard Time" },
+            { city: "Denver, USA", timezone: "MST (UTC-7) - Mountain Standard Time" },
+            { city: "Los Angeles, USA", timezone: "PST (UTC-8) - Pacific Standard Time" },
+            { city: "London, UK", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+            { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
+            { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
+            { city: "Shanghai, China", timezone: "CST (UTC+8) - China (No DST)" }
+            // Add more cities as needed
+        ];
+
+        // Part 3B: DOM Elements and Utility Functions
+        const sourceTimezone = document.getElementById('sourceTimezone');
+        const targetTimezone = document.getElementById('targetTimezone');
+        const sourceCity = document.getElementById('sourceCity');
+        const targetCity = document.getElementById('targetCity');
+        const sourceDate = document.getElementById('sourceDate');
+        const sourceHour = document.getElementById('sourceHour');
+        const sourceMinute = document.getElementById('sourceMinute');
+        const sourceHourDisplay = document.getElementById('sourceHourDisplay');
+        const sourceMinuteDisplay = document.getElementById('sourceMinuteDisplay');
+        const sourceTimeDisplay = document.getElementById('sourceTimeDisplay');
+        const sourceDayDisplay = document.getElementById('sourceDayDisplay');
+        const sourceWarning = document.getElementById('sourceWarning');
+        const targetTimeDisplay = document.getElementById('targetTimeDisplay');
+        const targetDayDisplay = document.getElementById('targetDayDisplay');
+        const targetDateDisplay = document.getElementById('targetDateDisplay');
+        const targetWarning = document.getElementById('targetWarning');
+        const sourceDSTChoice = document.getElementById('sourceDSTChoice');
+        const targetDSTChoice = document.getElementById('targetDSTChoice');
+        const sourceAdjustButton = document.getElementById('sourceAdjustButton');
+        const targetAdjustButton = document.getElementById('targetAdjustButton');
+        const historyList = document.getElementById('historyList');
+
+        let sourceAdjustedTime = null;
+        let targetAdjustedTime = null;
+
+        function formatTime(hours, minutes) {
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function populateTimezones() {
+            timezones.forEach(tz => {
+                const option1 = document.createElement('option');
+                option1.value = tz.name;
+                option1.textContent = tz.name;
+                sourceTimezone.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = tz.name;
+                option2.textContent = tz.name;
+                targetTimezone.appendChild(option2);
+            });
+        }
+
+        function populateCities() {
+            const defaultOption1 = document.createElement('option');
+            defaultOption1.value = '';
+            defaultOption1.textContent = 'Select a city';
+            sourceCity.appendChild(defaultOption1);
+
+            const defaultOption2 = document.createElement('option');
+            defaultOption2.value = '';
+            defaultOption2.textContent = 'Select a city';
+            targetCity.appendChild(defaultOption2);
+
+            cityToTimezone.forEach(city => {
+                const option1 = document.createElement('option');
+                option1.value = city.city;
+                option1.textContent = city.city;
+                sourceCity.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = city.city;
+                option2.textContent = city.city;
+                targetCity.appendChild(option2);
+            });
+        }
+
+        function setDefaultTargetCity() {
+            targetCity.value = "Shanghai, China";
+            const tz = getTimezoneFromCity(targetCity.value);
+            if (tz) {
+                targetTimezone.value = tz;
+            }
+            convertTime();
+        }
+
+        function getTimezoneFromCity(city) {
+            const entry = cityToTimezone.find(c => c.city === city);
+            return entry ? entry.timezone : null;
+        }
+
+        function updateSelectionUI(type, changed) {
+            const citySelect = type === 'source' ? sourceCity : targetCity;
+            const tzSelect = type === 'source' ? sourceTimezone : targetTimezone;
+            if (changed === 'city' && citySelect.value) {
+                tzSelect.disabled = true;
+            } else {
+                tzSelect.disabled = false;
+            }
+        }
+
+        // Part 3C: DST and Time Conversion Logic
+        function getNthDayOfMonth(year, month, dayOfWeek, n) {
+            const firstDay = new Date(year, month, 1);
+            const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
+            return new Date(year, month, daysUntilFirst + 1 + (n - 1) * 7);
+        }
+
+        function getLastDayOfMonth(year, month, dayOfWeek) {
+            const lastDay = new Date(year, month + 1, 0);
+            const daysFromEnd = (lastDay.getDay() - dayOfWeek + 7) % 7;
+            return new Date(year, month, lastDay.getDate() - daysFromEnd);
+        }
+
+        function getDSTTransitions(year, region) {
+            if (region === "US" || region === "CA") {
+                const start = getNthDayOfMonth(year, 2, 0, 2);
+                const end = getNthDayOfMonth(year, 10, 0, 1);
+                start.setHours(2, 0, 0, 0);
+                end.setHours(2, 0, 0, 0);
+                return { start, end, offset: 1, startHour: 2, endHour: 2 };
+            } else if (region === "EU") {
+                const start = getLastDayOfMonth(year, 2, 0);
+                const end = getLastDayOfMonth(year, 9, 0);
+                start.setUTCHours(1, 0, 0, 0);
+                end.setUTCHours(1, 0, 0, 0);
+                return { start, end, offset: 1, startHour: 1, endHour: 1 };
+            }
+            return null;
+        }
+
+        function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
+            const timezone = timezones.find(tz => tz.name === timezoneName);
+            let offset = timezone.offset;
+            let warning = "";
+            let isAmbiguous = false;
+            let adjustedTime = null;
+            let isSkipped = false;
+
+            if (!timezone.dstRegion) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
+
+            const year = dateTime.getFullYear();
+            const transitions = getDSTTransitions(year, timezone.dstRegion);
+            if (!transitions) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
+
+            const utcTime = new Date(dateTime.getTime() + offset * 60 * 60 * 1000);
+            let isDST = utcTime >= transitions.start && utcTime < transitions.end;
+
+            const localHours = dateTime.getHours();
+            const localMinutes = dateTime.getMinutes();
+
+            if (Math.abs(utcTime - transitions.start) < 60 * 60 * 1000) {
+                if (localHours === transitions.startHour && localMinutes >= 0 && localMinutes < 60) {
+                    const adjustedHours = transitions.startHour + Math.abs(transitions.offset);
+                    adjustedTime = new Date(dateTime);
+                    adjustedTime.setHours(adjustedHours, 0, 0, 0);
+                    warning = `Note: This time is skipped due to DST start. Next valid time: ${formatTime(adjustedHours, 0)}.`;
+                    isSkipped = true;
+                    return { offset: offset + transitions.offset, warning, isAmbiguous, adjustedTime, isSkipped };
+                }
+            }
+
+            if (Math.abs(utcTime - transitions.end) < 60 * 60 * 1000) {
+                if (localHours === (transitions.endHour - transitions.offset) && localMinutes >= 0 && localMinutes < 60) {
+                    warning = "Note: This time is ambiguous due to DST end. Choose below:";
+                    isAmbiguous = true;
+                    if (userChoice === "dst") {
+                        isDST = true;
+                    } else {
+                        isDST = false;
+                    }
+                }
+            }
+
+            return { offset: isDST ? offset + transitions.offset : offset, warning, isAmbiguous, adjustedTime, isSkipped };
+        }
+
+        function addToHistory(sourceTZ, sourceTime, sourceDate, targetTZ, targetTime, targetDate) {
+            const sourceCityName = sourceCity.value || "Unknown City";
+            const targetCityName = targetCity.value || "Unknown City";
+            const li = document.createElement('li');
+            li.textContent = `${sourceCityName} (${sourceTZ}): ${sourceTime}, ${sourceDate} → ${targetCityName} (${targetTZ}): ${targetTime}, ${targetDate}`;
+            historyList.insertBefore(li, historyList.firstChild);
+            if (historyList.children.length > 10) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        function clearHistory() {
+            while (historyList.firstChild) {
+                historyList.removeChild(historyList.firstChild);
+            }
+        }
+
+        function convertTime() {
+            const date = new Date(sourceDate.value);
+            const hours = parseInt(sourceHour.value);
+            const minutes = parseInt(sourceMinute.value);
+            date.setHours(hours, minutes, 0, 0);
+
+            const sourceChoice = document.querySelector('input[name="sourceDST"]:checked')?.value || "standard";
+            const targetChoice = document.querySelector('input[name="targetDST"]:checked')?.value || "standard";
+
+            if (sourceCity.value) {
+                const tz = getTimezoneFromCity(sourceCity.value);
+                if (tz) {
+                    sourceTimezone.value = tz;
+                    updateSelectionUI('source', 'city');
+                } else {
+                    updateSelectionUI('source', 'timezone');
+                }
+            } else {
+                updateSelectionUI('source', 'timezone');
+            }
+
+            if (targetCity.value) {
+                const tz = getTimezoneFromCity(targetCity.value);
+                if (tz) {
+                    targetTimezone.value = tz;
+                    updateSelectionUI('target', 'city');
+                } else {
+                    updateSelectionUI('target', 'timezone');
+                }
+            } else {
+                updateSelectionUI('target', 'timezone');
+            }
+
+            const sourceStatus = getDSTStatus(sourceTimezone.value, date, sourceChoice);
+            let sourceOffset = sourceStatus.offset;
+            sourceAdjustedTime = sourceStatus.adjustedTime;
+            let effectiveSourceTime = sourceAdjustedTime || date;
+
+            const targetStatus = getDSTStatus(targetTimezone.value, effectiveSourceTime, targetChoice);
+            let targetOffset = targetStatus.offset;
+            targetAdjustedTime = targetStatus.adjustedTime;
+            let effectiveTargetTime = targetAdjustedTime || effectiveSourceTime;
+
+            sourceDSTChoice.style.display = sourceStatus.isAmbiguous ? "block" : "none";
+            sourceAdjustButton.style.display = sourceStatus.isSkipped ? "block" : "none";
+            targetDSTChoice.style.display = targetStatus.isAmbiguous ? "block" : "none";
+            targetAdjustButton.style.display = targetStatus.isSkipped ? "block" : "none";
+
+            const utcTimeMs = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
+            const targetTime = new Date(utcTimeMs + (targetOffset * 60 * 60 * 1000));
+
+            const targetHours = targetTime.getHours();
+            const targetMinutes = targetTime.getMinutes();
+            const targetYear = targetTime.getFullYear();
+            const targetMonth = String(targetTime.getMonth() + 1).padStart(2, '0');
+            const targetDayOfMonth = String(targetTime.getDate()).padStart(2, '0');
+            const targetDate = `${targetYear}-${targetMonth}-${targetDayOfMonth}`;
+
+            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            console.log("Source Local Time:", `${formatTime(hours, minutes)} ${sourceDate.value} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`);
+            console.log("Target Local Time:", `${formatTime(targetHours, targetMinutes)} ${targetDate} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`);
+            console.log("Target Date:", targetDate);
+            console.log("Target Day (calculated):", daysOfWeek[targetTime.getDay()]);
+
+            const sourceDisplayTime = formatTime(hours, minutes);
+            const targetDisplayTime = formatTime(targetHours, targetMinutes);
+
+            const sourceDay = daysOfWeek[effectiveSourceTime.getDay()];
+            const targetDay = daysOfWeek[targetTime.getDay()];
+
+            sourceTimeDisplay.textContent = `Time: ${sourceDisplayTime} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`;
+            sourceDayDisplay.textContent = `Day: ${sourceDay}`;
+            sourceWarning.textContent = sourceStatus.warning;
+            targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
+            targetDayDisplay.textContent = `Day: ${targetDay}`;
+            targetDateDisplay.textContent = `Date: ${targetDate}`;
+            targetWarning.textContent = targetStatus.warning;
+
+            sourceTimeDisplay.classList.add('updated');
+            targetTimeDisplay.classList.add('updated');
+            setTimeout(() => {
+                sourceTimeDisplay.classList.remove('updated');
+                targetTimeDisplay.classList.remove('updated');
+            }, 1000);
+
+            addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
+        }
+
+        // Part 3D: Event Listeners and Initialization
+        function adjustSourceTime() {
+            if (sourceAdjustedTime) {
+                sourceHour.value = sourceAdjustedTime.getHours();
+                sourceMinute.value = sourceAdjustedTime.getMinutes();
+                sourceHourDisplay.textContent = sourceHour.value;
+                sourceMinuteDisplay.textContent = sourceMinute.value;
+                convertTime();
+            }
+        }
+
+        function adjustTargetTime() {
+            if (targetAdjustedTime) {
+                const date = new Date(sourceDate.value);
+                date.setHours(targetAdjustedTime.getHours(), targetAdjustedTime.getMinutes(), 0, 0);
+                sourceHour.value = date.getHours();
+                sourceMinute.value = date.getMinutes();
+                sourceHourDisplay.textContent = sourceHour.value;
+                sourceMinuteDisplay.textContent = sourceMinute.value;
+                convertTime();
+            }
+        }
+
+        function swapTimezones() {
+            const tempTimezone = sourceTimezone.value;
+            const tempCity = sourceCity.value;
+            sourceTimezone.value = targetTimezone.value;
+            sourceCity.value = targetCity.value;
+            targetTimezone.value = tempTimezone;
+            targetCity.value = tempCity;
+
+            const tempHour = sourceHour.value;
+            const tempMinute = sourceMinute.value;
+            const tempDate = sourceDate.value;
+
+            const targetTime = new Date(targetDateDisplay.textContent.replace("Date: ", ""));
+            sourceHour.value = targetTime.getHours();
+            sourceMinute.value = targetTime.getMinutes();
+            sourceDate.value = formatDate(targetTime);
+
+            sourceHourDisplay.textContent = sourceHour.value;
+            sourceMinuteDisplay.textContent = sourceMinute.value;
+
+            convertTime();
+        }
+
+        sourceHour.oninput = () => {
+            sourceHourDisplay.textContent = sourceHour.value;
+            convertTime();
+        };
+        sourceMinute.oninput = () => {
+            sourceMinuteDisplay.textContent = sourceMinute.value;
+            convertTime();
+        };
+        sourceDate.onchange = convertTime;
+        sourceTimezone.onchange = () => {
+            sourceCity.value = '';
+            updateSelectionUI('source', 'timezone');
+            convertTime();
+        };
+        targetTimezone.onchange = () => {
+            targetCity.value = '';
+            updateSelectionUI('target', 'timezone');
+            convertTime();
+        };
+        sourceCity.onchange = () => {
+            const tz = getTimezoneFromCity(sourceCity.value);
+            if (tz) {
+                sourceTimezone.value = tz;
+                updateSelectionUI('source', 'city');
+                convertTime();
+            }
+        };
+        targetCity.onchange = () => {
+            const tz = getTimezoneFromCity(targetCity.value);
+            if (tz) {
+                targetTimezone.value = tz;
+                updateSelectionUI('target', 'city');
+                convertTime();
+            }
+        };
+        sourceDSTChoice.onchange = convertTime;
+        targetDSTChoice.onchange = convertTime;
+        sourceAdjustButton.onclick = adjustSourceTime;
+        targetAdjustButton.onclick = adjustTargetTime;
+        document.getElementById('swapButton').onclick = swapTimezones;
+
+        // Initialization
+        populateTimezones();
+        populateCities();
+        sourceTimezone.value = "UTC (UTC+0) - Coordinated Universal Time";
+        sourceCity.value = "";
+        updateSelectionUI('source', 'timezone');
+        setDefaultTargetCity();
+    </script>
 </body>
 </html>
