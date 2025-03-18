@@ -754,12 +754,13 @@
         targetDSTChoice.style.display = targetStatus.isAmbiguous ? "block" : "none";
         targetAdjustButton.style.display = targetStatus.isSkipped ? "block" : "none";
 
-        const utcTime = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
-        const targetTime = new Date(utcTime + (targetOffset * 60 * 60 * 1000));
+        // Calculate UTC time and then target time, ensuring date is preserved
+        const utcTimeMs = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
+        const targetTime = new Date(utcTimeMs + (targetOffset * 60 * 60 * 1000));
 
         const targetHours = targetTime.getHours();
         const targetMinutes = targetTime.getMinutes();
-        const targetDate = formatDate(targetTime); // This now correctly reflects the targetTime's date
+        const targetDate = targetTime.toISOString().split('T')[0]; // Explicitly get the date from targetTime
 
         const sourceDisplayTime = formatTime(hours, minutes);
         const targetDisplayTime = formatTime(targetHours, targetMinutes);
@@ -774,7 +775,7 @@
         sourceWarning.textContent = sourceStatus.warning;
         targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
         targetDayDisplay.textContent = `Day: ${targetDay}`;
-        targetDateDisplay.textContent = `Date: ${targetDate}`; // Updated to use the recalculated targetDate
+        targetDateDisplay.textContent = `Date: ${targetDate}`; // Use the updated targetDate
         targetWarning.textContent = targetStatus.warning;
 
         sourceTimeDisplay.classList.add('updated');
