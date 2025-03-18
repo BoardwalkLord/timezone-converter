@@ -455,8 +455,8 @@ const sourceTimezone = document.getElementById('sourceTimezone');
 const targetTimezone = document.getElementById('targetTimezone');
 const sourceCity = document.getElementById('sourceCity');
 const targetCity = document.getElementById('targetCity');
-const sourceCityDropdown = document.getElementById('sourceCityDropdown');
-const targetCityDropdown = document.getElementById('targetCityDropdown');
+const sourceCityList = document.getElementById('sourceCityList');
+const targetCityList = document.getElementById('targetCityList');
 const sourceDate = document.getElementById('sourceDate');
 const sourceHour = document.getElementById('sourceHour');
 const sourceMinute = document.getElementById('sourceMinute');
@@ -486,6 +486,17 @@ function populateTimezones() {
         option1.textContent = option2.textContent = tz.name;
         sourceTimezone.appendChild(option1);
         targetTimezone.appendChild(option2);
+    });
+}
+
+function populateCities() {
+    cityToTimezone.forEach(city => {
+        const option1 = document.createElement('option');
+        const option2 = document.createElement('option');
+        option1.value = option2.value = city.city;
+        option1.textContent = option2.textContent = city.city;
+        sourceCityList.appendChild(option1);
+        targetCityList.appendChild(option2);
     });
 }
 
@@ -519,52 +530,6 @@ function updateSelectionUI(type, changed) {
             tzSelect.value = tz;
         }
     }
-}
-
-function showCityDropdown(type) {
-    const input = type === 'source' ? sourceCity : targetCity;
-    const dropdown = type === 'source' ? sourceCityDropdown : targetCityDropdown;
-    const value = input.value.toLowerCase().trim();
-    dropdown.innerHTML = '';
-
-    if (value.length < 1) {
-        dropdown.style.display = 'none';
-        return;
-    }
-
-    const matches = cityToTimezone.filter(c => c.city.toLowerCase().includes(value)).slice(0, 10);
-    if (matches.length === 0) {
-        dropdown.style.display = 'none';
-        return;
-    }
-
-    matches.forEach(city => {
-        const item = document.createElement('div');
-        item.className = 'dropdown-item';
-        item.innerHTML = `${city.city} <small>(${city.timezone})</small>`;
-        item.onclick = () => {
-            input.value = city.city;
-            const tz = getTimezoneFromCity(city.city);
-            if (tz) {
-                (type === 'source' ? sourceTimezone : targetTimezone).value = tz;
-                updateSelectionUI(type, 'city');
-                convertTime();
-            }
-            dropdown.style.display = 'none';
-        };
-        dropdown.appendChild(item);
-    });
-
-    dropdown.style.display = 'block';
-}
-
-function hideCityDropdown(type) {
-    const dropdown = type === 'source' ? sourceCityDropdown : targetCityDropdown;
-    setTimeout(() => {
-        if (!dropdown.contains(document.activeElement)) {
-            dropdown.style.display = 'none';
-        }
-    }, 100);
 }
         <!--Part3B above-->
         <!--Part3C below-->
