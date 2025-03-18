@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timezone Converter</title>
     <style>
-        <!-- Part2 CSS below-->
+        <!-- CSS will go here in Part 2 -->
+                <!-- Part2 CSS below-->
         body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
@@ -123,11 +124,11 @@ button:hover {
         <div class="converter">
             <div class="source">
                 <h2>Source</h2>
-                <label for="sourceTimezone">Timezone:</label>
-                <select id="sourceTimezone"></select>
                 <label for="sourceCity">City:</label>
                 <input type="text" id="sourceCity" list="sourceCityList">
                 <datalist id="sourceCityList"></datalist>
+                <label for="sourceTimezone">Timezone:</label>
+                <select id="sourceTimezone"></select>
                 <label for="sourceDate">Date:</label>
                 <input type="date" id="sourceDate">
                 <label>Time:</label>
@@ -150,11 +151,11 @@ button:hover {
             <button id="swapButton">Swap</button>
             <div class="target">
                 <h2>Target</h2>
-                <label for="targetTimezone">Timezone:</label>
-                <select id="targetTimezone"></select>
                 <label for="targetCity">City:</label>
                 <input type="text" id="targetCity" list="targetCityList">
                 <datalist id="targetCityList"></datalist>
+                <label for="targetTimezone">Timezone:</label>
+                <select id="targetTimezone"></select>
                 <div id="targetDSTChoice" style="display: none;">
                     <label><input type="radio" name="targetDST" value="standard"> Standard</label>
                     <label><input type="radio" name="targetDST" value="dst"> DST</label>
@@ -174,7 +175,7 @@ button:hover {
     </div>
     <script>
         <!-- JavaScript will go here in Parts 3A, 3B, 3C, and 3D -->
-        <!--Part3A below-->
+                    <!--Part3A below-->
 const timezones = [
     { name: "NZST (UTC+12) - New Zealand Standard Time", offset: 12, dstRegion: "NZ" },
     { name: "AEST (UTC+10) - Australian Eastern Standard Time", offset: 10, dstRegion: "AU" },
@@ -592,6 +593,7 @@ function swapTimezones() {
     convertTime();
 }
 
+// Event listeners
 sourceHour.oninput = () => {
     sourceHourDisplay.textContent = sourceHour.value;
     convertTime();
@@ -601,16 +603,6 @@ sourceMinute.oninput = () => {
     convertTime();
 };
 sourceDate.onchange = convertTime;
-sourceTimezone.onchange = () => {
-    sourceCity.value = '';
-    updateSelectionUI('source', 'timezone');
-    convertTime();
-};
-targetTimezone.onchange = () => {
-    targetCity.value = '';
-    updateSelectionUI('target', 'timezone');
-    convertTime();
-};
 sourceCity.onchange = () => {
     const tz = getTimezoneFromCity(sourceCity.value);
     if (tz) {
@@ -618,6 +610,11 @@ sourceCity.onchange = () => {
         updateSelectionUI('source', 'city');
         convertTime();
     }
+};
+sourceTimezone.onchange = () => {
+    sourceCity.value = '';
+    updateSelectionUI('source', 'timezone');
+    convertTime();
 };
 targetCity.onchange = () => {
     const tz = getTimezoneFromCity(targetCity.value);
@@ -627,20 +624,30 @@ targetCity.onchange = () => {
         convertTime();
     }
 };
+targetTimezone.onchange = () => {
+    targetCity.value = '';
+    updateSelectionUI('target', 'timezone');
+    convertTime();
+};
 sourceDSTChoice.onchange = convertTime;
 targetDSTChoice.onchange = convertTime;
 sourceAdjustButton.onclick = adjustSourceTime;
 targetAdjustButton.onclick = adjustTargetTime;
 document.getElementById('swapButton').onclick = swapTimezones;
 
+// Initialization
 populateTimezones();
 populateCities();
-sourceTimezone.value = "UTC (UTC+0) - Coordinated Universal Time";
-sourceCity.value = "";
-updateSelectionUI('source', 'timezone');
-setDefaultTargetCity();
+sourceCity.value = "London, UK"; // Default to a city instead of timezone
+sourceTimezone.value = getTimezoneFromCity(sourceCity.value); // Set timezone based on city
+updateSelectionUI('source', 'city');
+targetCity.value = "Shanghai, China"; // Adjusted from setDefaultTargetCity
+targetTimezone.value = getTimezoneFromCity(targetCity.value);
+updateSelectionUI('target', 'city');
+sourceDate.value = formatDate(new Date());
+convertTime();
         <!--Part3D above-->
-            
+
     </script>
 </body>
 </html>
