@@ -3,545 +3,608 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timezone Converter Tool</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Placeholder for Part 2 -->
+    <title>Timezone Converter</title>
     <style>
+        <!-- Part2 CSS below-->
         body {
-            font-family: 'Arial', sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .intro, .content-section {
-            margin-bottom: 30px;
-        }
-        h1 {
-            font-size: 2em;
-            color: #333;
-        }
-        h2 {
-            font-size: 1.5em;
-            color: #555;
-            margin-top: 20px;
-        }
-        p {
-            font-size: 1em;
-            color: #666;
-        }
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.converter {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.source, .target {
+    flex: 1;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+h2 {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    color: #666;
+}
+
+select, input[type="text"], input[type="date"], input[type="range"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.time-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-input span {
+    font-size: 1.1em;
+    color: #333;
+}
+
+.updated {
+    background-color: #e0ffe0;
+    transition: background-color 1s ease;
+}
+
+button {
+    padding: 8px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#swapButton {
+    align-self: center;
+}
+
+.history {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#historyList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#historyList li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+#clearHistory {
+    margin-top: 10px;
+}
+        <!--Part2 CSS above-->
     </style>
 </head>
 <body>
-    <header>
-        <h1>Timezone Converter Tool</h1>
-    </header>
-
-    <!-- Brief Intro -->
-    <section class="intro">
-        <p>Welcome to the Timezone Converter Tool – a fast, free, and reliable way to convert time across the globe. Whether you're scheduling a meeting with remote colleagues, planning travel, or coordinating events, our tool makes timezone conversion simple. Built with precision and hosted on GitHub Pages, it’s perfect for developers and everyday users alike. Try it now and see the difference!</p>
-    </section>
-
-    <!-- Converter Tool Section -->
-    <section id="converter-tool">
-        <div id="sourceSection">
-            <h3>Source Time</h3>
-            <!-- City before Timezone -->
-            <label for="sourceCity">City:</label>
-            <select id="sourceCity"></select>
-            <label for="sourceTimezone">Timezone:</label>
-            <select id="sourceTimezone"></select>
-            <br>
-            <label for="sourceDate">Date:</label>
-            <input type="date" id="sourceDate">
-            <br>
-            <label>Time:</label>
-            <input type="range" id="sourceHour" min="0" max="23" value="12">
-            <span id="sourceHourDisplay">12</span>:
-            <input type="range" id="sourceMinute" min="0" max="59" value="0">
-            <span id="sourceMinuteDisplay">00</span>
-            <div id="sourceDSTChoice" style="display: none;">
-                <input type="radio" name="sourceDST" value="standard" checked> Standard
-                <input type="radio" name="sourceDST" value="dst"> DST
+    <div class="container">
+        <h1>Timezone Converter</h1>
+        <div class="converter">
+            <div class="source">
+                <h2>Source</h2>
+                <label for="sourceTimezone">Timezone:</label>
+                <select id="sourceTimezone"></select>
+                <label for="sourceCity">City:</label>
+                <input type="text" id="sourceCity" list="sourceCityList">
+                <datalist id="sourceCityList"></datalist>
+                <label for="sourceDate">Date:</label>
+                <input type="date" id="sourceDate">
+                <label>Time:</label>
+                <div class="time-input">
+                    <input type="range" id="sourceHour" min="0" max="23" value="12">
+                    <span id="sourceHourDisplay">12</span>
+                    <span>:</span>
+                    <input type="range" id="sourceMinute" min="0" max="59" value="0">
+                    <span id="sourceMinuteDisplay">0</span>
+                </div>
+                <div id="sourceDSTChoice" style="display: none;">
+                    <label><input type="radio" name="sourceDST" value="standard"> Standard</label>
+                    <label><input type="radio" name="sourceDST" value="dst"> DST</label>
+                </div>
+                <button id="sourceAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
+                <p id="sourceTimeDisplay">Time: </p>
+                <p id="sourceDayDisplay">Day: </p>
+                <p id="sourceWarning"></p>
             </div>
-            <button id="sourceAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
-            <p id="sourceTimeDisplay">Time: </p>
-            <p id="sourceDayDisplay">Day: </p>
-            <p id="sourceWarning"></p>
-        </div>
-
-        <div id="targetSection">
-            <h3>Target Time</h3>
-            <!-- City before Timezone -->
-            <label for="targetCity">City:</label>
-            <select id="targetCity"></select>
-            <label for="targetTimezone">Timezone:</label>
-            <select id="targetTimezone"></select>
-            <div id="targetDSTChoice" style="display: none;">
-                <input type="radio" name="targetDST" value="standard" checked> Standard
-                <input type="radio" name="targetDST" value="dst"> DST
+            <button id="swapButton">Swap</button>
+            <div class="target">
+                <h2>Target</h2>
+                <label for="targetTimezone">Timezone:</label>
+                <select id="targetTimezone"></select>
+                <label for="targetCity">City:</label>
+                <input type="text" id="targetCity" list="targetCityList">
+                <datalist id="targetCityList"></datalist>
+                <div id="targetDSTChoice" style="display: none;">
+                    <label><input type="radio" name="targetDST" value="standard"> Standard</label>
+                    <label><input type="radio" name="targetDST" value="dst"> DST</label>
+                </div>
+                <button id="targetAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
+                <p id="targetTimeDisplay">Converted Time: </p>
+                <p id="targetDayDisplay">Day: </p>
+                <p id="targetDateDisplay">Date: </p>
+                <p id="targetWarning"></p>
             </div>
-            <button id="targetAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
-            <p id="targetTimeDisplay">Converted Time: </p>
-            <p id="targetDayDisplay">Day: </p>
-            <p id="targetDateDisplay">Date: </p>
-            <p id="targetWarning"></p>
         </div>
-
-        <button id="swapButton">Swap Source and Target</button>
-        <div id="history">
-            <h3>Conversion History</h3>
+        <div class="history">
+            <h2>History</h2>
             <ul id="historyList"></ul>
-            <button onclick="clearHistory()">Clear History</button>
+            <button id="clearHistory">Clear History</button>
         </div>
-    </section>
-
-    <!-- Content Sections -->
-    <section class="content-section">
-        <h2>How It Works</h2>
-        <p>Using the Timezone Converter is easy: select your source timezone, set the date and time, then choose your target timezone. The tool instantly calculates the converted time, accounting for daylight saving time (DST) where applicable. Adjust the sliders or input fields, and watch the results update in real-time. It’s that simple!</p>
-    </section>
-
-    <section class="content-section">
-        <h2>Features</h2>
-        <ul>
-            <li><strong>Real-Time Conversion:</strong> See results as you adjust the time.</li>
-            <li><strong>DST Support:</strong> Handles daylight saving time automatically.</li>
-            <li><strong>City Search:</strong> Find timezones by city name for convenience.</li>
-            <li><strong>Free & Open-Source:</strong> Hosted on GitHub Pages, no cost to use.</li>
-            <li><strong>Swap Functionality:</strong> Easily switch source and target timezones.</li>
-        </ul>
-    </section>
-
-    <section class="content-section">
-        <h2>Why Use This Tool</h2>
-        <p>Unlike clunky apps or confusing websites, our Timezone Converter offers a clean, intuitive interface with accurate results. It’s lightweight, fast-loading, and perfect for professionals, travelers, or anyone needing quick timezone math. Plus, being open-source means you can trust its reliability and even contribute to its development!</p>
-    </section>
-
+    </div>
     <script>
-        // Part 3A: Data (Timezones and Cities)
-        const timezones = [
-            { name: "UTC (UTC+0) - Coordinated Universal Time", offset: 0, dstRegion: null },
-            { name: "EST (UTC-5) - Eastern Standard Time", offset: -5, dstRegion: "US" },
-            { name: "CST (UTC-6) - Central Standard Time", offset: -6, dstRegion: "US" },
-            { name: "MST (UTC-7) - Mountain Standard Time", offset: -7, dstRegion: "US" },
-            { name: "PST (UTC-8) - Pacific Standard Time", offset: -8, dstRegion: "US" },
-            { name: "CET (UTC+1) - Central European Time", offset: 1, dstRegion: "EU" },
-            { name: "EET (UTC+2) - Eastern European Time", offset: 2, dstRegion: "EU" },
-            { name: "CST (UTC+8) - China (No DST)", offset: 8, dstRegion: null },
-            { name: "IST (UTC+5:30) - India Standard Time", offset: 5.5, dstRegion: null },
-            { name: "JST (UTC+9) - Japan Standard Time", offset: 9, dstRegion: null }
-            // Add more timezones as needed
-        ];
+        <!-- JavaScript will go here in Parts 3A, 3B, 3C, and 3D -->
+        <!--Part3A below-->
+            const timezones = [
+    { name: "UTC (UTC+0) - Coordinated Universal Time", offset: 0, dstRegion: null },
+    { name: "PST (UTC-8) - Pacific Standard Time (US)", offset: -8, dstRegion: "US" },
+    { name: "MST (UTC-7) - Mountain Standard Time (US)", offset: -7, dstRegion: "US" },
+    { name: "CST (UTC-6) - Central Standard Time (US)", offset: -6, dstRegion: "US" },
+    { name: "EST (UTC-5) - Eastern Standard Time (US)", offset: -5, dstRegion: "US" },
+    { name: "AST (UTC-4) - Atlantic Standard Time", offset: -4, dstRegion: null },
+    { name: "GMT (UTC+0) - Greenwich Mean Time (UK)", offset: 0, dstRegion: "EU" },
+    { name: "CET (UTC+1) - Central European Time", offset: 1, dstRegion: "EU" },
+    { name: "EET (UTC+2) - Eastern European Time", offset: 2, dstRegion: "EU" },
+    { name: "IST (UTC+5:30) - India Standard Time", offset: 5.5, dstRegion: null },
+    { name: "CST (UTC+8) - China Standard Time", offset: 8, dstRegion: null },
+    { name: "JST (UTC+9) - Japan Standard Time", offset: 9, dstRegion: null },
+    { name: "AEST (UTC+10) - Australian Eastern Standard Time", offset: 10, dstRegion: "AU" },
+    { name: "NZST (UTC+12) - New Zealand Standard Time", offset: 12, dstRegion: "NZ" }
+];
 
-        const cityToTimezone = [
-            { city: "New York, USA", timezone: "EST (UTC-5) - Eastern Standard Time" },
-            { city: "Chicago, USA", timezone: "CST (UTC-6) - Central Standard Time" },
-            { city: "Denver, USA", timezone: "MST (UTC-7) - Mountain Standard Time" },
-            { city: "Los Angeles, USA", timezone: "PST (UTC-8) - Pacific Standard Time" },
-            { city: "London, UK", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
-            { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
-            { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
-            { city: "Shanghai, China", timezone: "CST (UTC+8) - China (No DST)" },
-            { city: "Mumbai, India", timezone: "IST (UTC+5:30) - India Standard Time" },
-            { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" }
-            // Add more cities as needed
-        ];
+const cityToTimezone = [
+    { city: "London, UK", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
+    { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "New York, USA", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Chicago, USA", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Denver, USA", timezone: "MST (UTC-7) - Mountain Standard Time (US)" },
+    { city: "Los Angeles, USA", timezone: "PST (UTC-8) - Pacific Standard Time (US)" },
+    { city: "Mumbai, India", timezone: "IST (UTC+5:30) - India Standard Time" },
+    { city: "Shanghai, China", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" },
+    { city: "Sydney, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
+    { city: "Auckland, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" }
+];
+        <!--Part3A above-->
+        <!--Part3B below-->
+            const sourceTimezone = document.getElementById('sourceTimezone');
+const targetTimezone = document.getElementById('targetTimezone');
+const sourceCity = document.getElementById('sourceCity');
+const targetCity = document.getElementById('targetCity');
+const sourceCityList = document.getElementById('sourceCityList');
+const targetCityList = document.getElementById('targetCityList');
+const sourceDate = document.getElementById('sourceDate');
+const sourceHour = document.getElementById('sourceHour');
+const sourceMinute = document.getElementById('sourceMinute');
+const sourceHourDisplay = document.getElementById('sourceHourDisplay');
+const sourceMinuteDisplay = document.getElementById('sourceMinuteDisplay');
+const sourceTimeDisplay = document.getElementById('sourceTimeDisplay');
+const sourceDayDisplay = document.getElementById('sourceDayDisplay');
+const sourceWarning = document.getElementById('sourceWarning');
+const targetTimeDisplay = document.getElementById('targetTimeDisplay');
+const targetDayDisplay = document.getElementById('targetDayDisplay');
+const targetDateDisplay = document.getElementById('targetDateDisplay');
+const targetWarning = document.getElementById('targetWarning');
+const sourceDSTChoice = document.getElementById('sourceDSTChoice');
+const targetDSTChoice = document.getElementById('targetDSTChoice');
+const sourceAdjustButton = document.getElementById('sourceAdjustButton');
+const targetAdjustButton = document.getElementById('targetAdjustButton');
+const historyList = document.getElementById('historyList');
+const clearHistoryButton = document.getElementById('clearHistory');
+let sourceAdjustedTime = null;
+let targetAdjustedTime = null;
 
-        // Part 3B: DOM Elements and Utility Functions
-        const sourceTimezone = document.getElementById('sourceTimezone');
-        const targetTimezone = document.getElementById('targetTimezone');
-        const sourceCity = document.getElementById('sourceCity');
-        const targetCity = document.getElementById('targetCity');
-        const sourceDate = document.getElementById('sourceDate');
-        const sourceHour = document.getElementById('sourceHour');
-        const sourceMinute = document.getElementById('sourceMinute');
-        const sourceHourDisplay = document.getElementById('sourceHourDisplay');
-        const sourceMinuteDisplay = document.getElementById('sourceMinuteDisplay');
-        const sourceTimeDisplay = document.getElementById('sourceTimeDisplay');
-        const sourceDayDisplay = document.getElementById('sourceDayDisplay');
-        const sourceWarning = document.getElementById('sourceWarning');
-        const targetTimeDisplay = document.getElementById('targetTimeDisplay');
-        const targetDayDisplay = document.getElementById('targetDayDisplay');
-        const targetDateDisplay = document.getElementById('targetDateDisplay');
-        const targetWarning = document.getElementById('targetWarning');
-        const sourceDSTChoice = document.getElementById('sourceDSTChoice');
-        const targetDSTChoice = document.getElementById('targetDSTChoice');
-        const sourceAdjustButton = document.getElementById('sourceAdjustButton');
-        const targetAdjustButton = document.getElementById('targetAdjustButton');
-        const historyList = document.getElementById('historyList');
+function populateTimezones() {
+    timezones.forEach(tz => {
+        const option1 = document.createElement('option');
+        const option2 = document.createElement('option');
+        option1.value = option2.value = tz.name;
+        option1.textContent = option2.textContent = tz.name;
+        sourceTimezone.appendChild(option1);
+        targetTimezone.appendChild(option2);
+    });
+}
 
-        let sourceAdjustedTime = null;
-        let targetAdjustedTime = null;
+function populateCities() {
+    cityToTimezone.forEach(city => {
+        const option1 = document.createElement('option');
+        const option2 = document.createElement('option');
+        option1.value = option2.value = city.city;
+        option1.textContent = option2.textContent = city.city;
+        sourceCityList.appendChild(option1);
+        targetCityList.appendChild(option2);
+    });
+}
 
-        function formatTime(hours, minutes) {
-            const period = hours >= 12 ? 'PM' : 'AM';
-            const displayHours = hours % 12 || 12;
-            return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+function getTimezoneFromCity(city) {
+    const entry = cityToTimezone.find(c => c.city === city);
+    return entry ? entry.timezone : null;
+}
+
+function formatTime(hours, minutes) {
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+}
+
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+function setDefaultTargetCity() {
+    targetTimezone.value = "CST (UTC+8) - China Standard Time";
+    targetCity.value = "Shanghai, China";
+    updateSelectionUI('target', 'city');
+    sourceDate.value = formatDate(new Date());
+    convertTime();
+}
+
+function updateSelectionUI(type, changed) {
+    const tzSelect = type === 'source' ? sourceTimezone : targetTimezone;
+    const cityInput = type === 'source' ? sourceCity : targetCity;
+    if (changed === 'timezone' && tzSelect.value) {
+        const tz = timezones.find(t => t.name === tzSelect.value);
+        if (tz) {
+            const matchingCity = cityToTimezone.find(c => c.timezone === tz.name);
+            cityInput.value = matchingCity ? matchingCity.city : '';
         }
-
-        function formatDate(date) {
-            return date.toISOString().split('T')[0];
+    } else if (changed === 'city' && cityInput.value) {
+        const tz = getTimezoneFromCity(cityInput.value);
+        if (tz) {
+            tzSelect.value = tz;
         }
+    }
+}
+        <!--Part3B above-->
+        <!--Part3C below-->
+            function getNthDayOfMonth(year, month, dayOfWeek, n) {
+    const firstDay = new Date(year, month, 1);
+    const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
+    return new Date(year, month, daysUntilFirst + 1 + (n - 1) * 7);
+}
 
-        function populateTimezones() {
-            timezones.forEach(tz => {
-                const option1 = document.createElement('option');
-                option1.value = tz.name;
-                option1.textContent = tz.name;
-                sourceTimezone.appendChild(option1);
+function getLastDayOfMonth(year, month, dayOfWeek) {
+    const lastDay = new Date(year, month + 1, 0);
+    const daysFromEnd = (lastDay.getDay() - dayOfWeek + 7) % 7;
+    return new Date(year, month, lastDay.getDate() - daysFromEnd);
+}
 
-                const option2 = document.createElement('option');
-                option2.value = tz.name;
-                option2.textContent = tz.name;
-                targetTimezone.appendChild(option2);
-            });
+function getDSTTransitions(year, region) {
+    if (region === "US" || region === "CA") {
+        const start = getNthDayOfMonth(year, 2, 0, 2);
+        const end = getNthDayOfMonth(year, 10, 0, 1);
+        start.setHours(2, 0, 0, 0);
+        end.setHours(2, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 2 };
+    } else if (region === "EU") {
+        const start = getLastDayOfMonth(year, 2, 0);
+        const end = getLastDayOfMonth(year, 9, 0);
+        start.setUTCHours(1, 0, 0, 0);
+        end.setUTCHours(1, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 1, endHour: 1 };
+    } else if (region === "AU") {
+        const start = getNthDayOfMonth(year, 9, 0, 1);
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
+        start.setHours(2, 0, 0, 0);
+        end.setHours(3, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 3 };
+    } else if (region === "NZ") {
+        const start = getLastDayOfMonth(year, 8, 0);
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
+        start.setHours(2, 0, 0, 0);
+        end.setHours(3, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 3 };
+    } else if (region === "BR") {
+        const start = getNthDayOfMonth(year, 10, 0, 3);
+        const end = getNthDayOfMonth(year + 1, 1, 0, 3);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 0, endHour: 0 };
+    } else if (region === "CL") {
+        const start = getNthDayOfMonth(year, 8, 0, 1);
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return { start, end, offset: -1, startHour: 0, endHour: 0 };
+    }
+    return null;
+}
+
+function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
+    const timezone = timezones.find(tz => tz.name === timezoneName);
+    let offset = timezone.offset;
+    let warning = "";
+    let isAmbiguous = false;
+    let adjustedTime = null;
+    let isSkipped = false;
+
+    if (!timezone.dstRegion) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
+
+    const year = dateTime.getFullYear();
+    const transitions = getDSTTransitions(year, timezone.dstRegion);
+    if (!transitions) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
+
+    const utcTime = new Date(dateTime.getTime() + offset * 60 * 60 * 1000);
+    let isDST = false;
+
+    if (["AU", "NZ", "BR", "CL"].includes(timezone.dstRegion) && dateTime.getMonth() < 3) {
+        const prevTransitions = getDSTTransitions(year - 1, timezone.dstRegion);
+        isDST = utcTime >= prevTransitions.start && utcTime < transitions.end;
+    } else {
+        isDST = utcTime >= transitions.start && utcTime < transitions.end;
+    }
+
+    const localHours = dateTime.getHours();
+    const localMinutes = dateTime.getMinutes();
+
+    if (Math.abs(utcTime - transitions.start) < 60 * 60 * 1000) {
+        if (localHours === transitions.startHour && localMinutes >= 0 && localMinutes < 60) {
+            const adjustedHours = transitions.startHour + Math.abs(transitions.offset);
+            adjustedTime = new Date(dateTime);
+            adjustedTime.setHours(adjustedHours, 0, 0, 0);
+            warning = `Note: This time is skipped due to DST start (spring forward). Next valid time: ${formatTime(adjustedHours, 0)}.`;
+            isSkipped = true;
+            return { offset: offset + transitions.offset, warning, isAmbiguous, adjustedTime, isSkipped };
         }
+    }
 
-        function populateCities() {
-            const defaultOption1 = document.createElement('option');
-            defaultOption1.value = '';
-            defaultOption1.textContent = 'Select a city';
-            sourceCity.appendChild(defaultOption1);
-
-            const defaultOption2 = document.createElement('option');
-            defaultOption2.value = '';
-            defaultOption2.textContent = 'Select a city';
-            targetCity.appendChild(defaultOption2);
-
-            cityToTimezone.forEach(city => {
-                const option1 = document.createElement('option');
-                option1.value = city.city;
-                option1.textContent = city.city;
-                sourceCity.appendChild(option1);
-
-                const option2 = document.createElement('option');
-                option2.value = city.city;
-                option2.textContent = city.city;
-                targetCity.appendChild(option2);
-            });
-        }
-
-        function getTimezoneFromCity(city) {
-            const entry = cityToTimezone.find(c => c.city === city);
-            return entry ? entry.timezone : null;
-        }
-
-        function updateSelectionUI(type, changed) {
-            const citySelect = type === 'source' ? sourceCity : targetCity;
-            const tzSelect = type === 'source' ? sourceTimezone : targetTimezone;
-            if (changed === 'city' && citySelect.value) {
-                tzSelect.disabled = true;
+    if (Math.abs(utcTime - transitions.end) < 60 * 60 * 1000) {
+        if (localHours === (transitions.endHour - transitions.offset) && localMinutes >= 0 && localMinutes < 60) {
+            warning = "Note: This time is ambiguous due to DST end (fall back). Choose below:";
+            isAmbiguous = true;
+            if (userChoice === "dst") {
+                isDST = true;
             } else {
-                tzSelect.disabled = false;
+                isDST = false;
             }
         }
+    }
 
-        function setDefaultTargetToUserLocation() {
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            let matchedTimezone = null;
-            let matchedCity = '';
+    return { offset: isDST ? offset + transitions.offset : offset, warning, isAmbiguous, adjustedTime, isSkipped };
+}
 
-            // Map browser timezone (IANA format) to our timezones
-            const timezoneMap = {
-                "America/New_York": "EST (UTC-5) - Eastern Standard Time",
-                "America/Chicago": "CST (UTC-6) - Central Standard Time",
-                "America/Denver": "MST (UTC-7) - Mountain Standard Time",
-                "America/Los_Angeles": "PST (UTC-8) - Pacific Standard Time",
-                "Europe/London": "UTC (UTC+0) - Coordinated Universal Time",
-                "Europe/Paris": "CET (UTC+1) - Central European Time",
-                "Europe/Athens": "EET (UTC+2) - Eastern European Time",
-                "Asia/Shanghai": "CST (UTC+8) - China (No DST)",
-                "Asia/Kolkata": "IST (UTC+5:30) - India Standard Time",
-                "Asia/Tokyo": "JST (UTC+9) - Japan Standard Time"
-            };
+function addToHistory(sourceTZ, sourceTime, sourceDate, targetTZ, targetTime, targetDate) {
+    const sourceCityName = sourceCity.value || "Unknown City";
+    const targetCityName = targetCity.value || "Unknown City";
+    const li = document.createElement('li');
+    li.textContent = `${sourceCityName} (${sourceTZ}): ${sourceTime}, ${sourceDate} → ${targetCityName} (${targetTZ}): ${targetTime}, ${targetDate}`;
+    historyList.insertBefore(li, historyList.firstChild);
+    if (historyList.children.length > 10) {
+        historyList.removeChild(historyList.lastChild);
+    }
+}
 
-            matchedTimezone = timezoneMap[userTimezone] || "UTC (UTC+0) - Coordinated Universal Time"; // Fallback to UTC
-            targetTimezone.value = matchedTimezone;
+function clearHistory() {
+    while (historyList.firstChild) {
+        historyList.removeChild(historyList.firstChild);
+    }
+}
 
-            // Find a matching city
-            const cityEntry = cityToTimezone.find(c => c.timezone === matchedTimezone);
-            matchedCity = cityEntry ? cityEntry.city : '';
-            targetCity.value = matchedCity;
+function convertTime() {
+    const date = new Date(sourceDate.value);
+    const hours = parseInt(sourceHour.value);
+    const minutes = parseInt(sourceMinute.value);
+    date.setHours(hours, minutes, 0, 0);
 
-            updateSelectionUI('target', 'city');
-            convertTime();
-        }
+    const sourceChoice = document.querySelector('input[name="sourceDST"]:checked')?.value || "standard";
+    const targetChoice = document.querySelector('input[name="targetDST"]:checked')?.value || "standard";
 
-        // Part 3C: DST and Time Conversion Logic
-        function getNthDayOfMonth(year, month, dayOfWeek, n) {
-            const firstDay = new Date(year, month, 1);
-            const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
-            return new Date(year, month, daysUntilFirst + 1 + (n - 1) * 7);
-        }
-
-        function getLastDayOfMonth(year, month, dayOfWeek) {
-            const lastDay = new Date(year, month + 1, 0);
-            const daysFromEnd = (lastDay.getDay() - dayOfWeek + 7) % 7;
-            return new Date(year, month, lastDay.getDate() - daysFromEnd);
-        }
-
-                function getDSTTransitions(year, region) {
-            if (region === "US" || region === "CA") {
-                const start = getNthDayOfMonth(year, 2, 0, 2);
-                const end = getNthDayOfMonth(year, 10, 0, 1);
-                start.setHours(2, 0, 0, 0);
-                end.setHours(2, 0, 0, 0);
-                return { start, end, offset: 1, startHour: 2, endHour: 2 };
-            } else if (region === "EU") {
-                const start = getLastDayOfMonth(year, 2, 0);
-                const end = getLastDayOfMonth(year, 9, 0);
-                start.setUTCHours(1, 0, 0, 0);
-                end.setUTCHours(1, 0, 0, 0);
-                return { start, end, offset: 1, startHour: 1, endHour: 1 };
-            }
-            return null;
-        }
-
-        function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
-            const timezone = timezones.find(tz => tz.name === timezoneName);
-            let offset = timezone.offset;
-            let warning = "";
-            let isAmbiguous = false;
-            let adjustedTime = null;
-            let isSkipped = false;
-
-            if (!timezone.dstRegion) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
-
-            const year = dateTime.getFullYear();
-            const transitions = getDSTTransitions(year, timezone.dstRegion);
-            if (!transitions) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
-
-            const utcTime = new Date(dateTime.getTime() + offset * 60 * 60 * 1000);
-            let isDST = utcTime >= transitions.start && utcTime < transitions.end;
-
-            const localHours = dateTime.getHours();
-            const localMinutes = dateTime.getMinutes();
-
-            if (Math.abs(utcTime - transitions.start) < 60 * 60 * 1000) {
-                if (localHours === transitions.startHour && localMinutes >= 0 && localMinutes < 60) {
-                    const adjustedHours = transitions.startHour + Math.abs(transitions.offset);
-                    adjustedTime = new Date(dateTime);
-                    adjustedTime.setHours(adjustedHours, 0, 0, 0);
-                    warning = `Note: This time is skipped due to DST start. Next valid time: ${formatTime(adjustedHours, 0)}.`;
-                    isSkipped = true;
-                    return { offset: offset + transitions.offset, warning, isAmbiguous, adjustedTime, isSkipped };
-                }
-            }
-
-            if (Math.abs(utcTime - transitions.end) < 60 * 60 * 1000) {
-                if (localHours === (transitions.endHour - transitions.offset) && localMinutes >= 0 && localMinutes < 60) {
-                    warning = "Note: This time is ambiguous due to DST end. Choose below:";
-                    isAmbiguous = true;
-                    if (userChoice === "dst") {
-                        isDST = true;
-                    } else {
-                        isDST = false;
-                    }
-                }
-            }
-
-            return { offset: isDST ? offset + transitions.offset : offset, warning, isAmbiguous, adjustedTime, isSkipped };
-        }
-
-        function addToHistory(sourceTZ, sourceTime, sourceDate, targetTZ, targetTime, targetDate) {
-            const sourceCityName = sourceCity.value || "Unknown City";
-            const targetCityName = targetCity.value || "Unknown City";
-            const li = document.createElement('li');
-            li.textContent = `${sourceCityName} (${sourceTZ}): ${sourceTime}, ${sourceDate} → ${targetCityName} (${targetTZ}): ${targetTime}, ${targetDate}`;
-            historyList.insertBefore(li, historyList.firstChild);
-            if (historyList.children.length > 10) {
-                historyList.removeChild(historyList.lastChild);
-            }
-        }
-
-        function clearHistory() {
-            while (historyList.firstChild) {
-                historyList.removeChild(historyList.firstChild);
-            }
-        }
-
-        function convertTime() {
-            const date = new Date(sourceDate.value);
-            const hours = parseInt(sourceHour.value);
-            const minutes = parseInt(sourceMinute.value);
-            date.setHours(hours, minutes, 0, 0);
-
-            const sourceChoice = document.querySelector('input[name="sourceDST"]:checked')?.value || "standard";
-            const targetChoice = document.querySelector('input[name="targetDST"]:checked')?.value || "standard";
-
-            if (sourceCity.value) {
-                const tz = getTimezoneFromCity(sourceCity.value);
-                if (tz) {
-                    sourceTimezone.value = tz;
-                    updateSelectionUI('source', 'city');
-                } else {
-                    updateSelectionUI('source', 'timezone');
-                }
-            } else {
-                updateSelectionUI('source', 'timezone');
-            }
-
-            if (targetCity.value) {
-                const tz = getTimezoneFromCity(targetCity.value);
-                if (tz) {
-                    targetTimezone.value = tz;
-                    updateSelectionUI('target', 'city');
-                } else {
-                    updateSelectionUI('target', 'timezone');
-                }
-            } else {
-                updateSelectionUI('target', 'timezone');
-            }
-
-            const sourceStatus = getDSTStatus(sourceTimezone.value, date, sourceChoice);
-            let sourceOffset = sourceStatus.offset;
-            sourceAdjustedTime = sourceStatus.adjustedTime;
-            let effectiveSourceTime = sourceAdjustedTime || date;
-
-            const targetStatus = getDSTStatus(targetTimezone.value, effectiveSourceTime, targetChoice);
-            let targetOffset = targetStatus.offset;
-            targetAdjustedTime = targetStatus.adjustedTime;
-            let effectiveTargetTime = targetAdjustedTime || effectiveSourceTime;
-
-            sourceDSTChoice.style.display = sourceStatus.isAmbiguous ? "block" : "none";
-            sourceAdjustButton.style.display = sourceStatus.isSkipped ? "block" : "none";
-            targetDSTChoice.style.display = targetStatus.isAmbiguous ? "block" : "none";
-            targetAdjustButton.style.display = targetStatus.isSkipped ? "block" : "none";
-
-            const utcTimeMs = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
-            const targetTime = new Date(utcTimeMs + (targetOffset * 60 * 60 * 1000));
-
-            const targetHours = targetTime.getHours();
-            const targetMinutes = targetTime.getMinutes();
-            const targetYear = targetTime.getFullYear();
-            const targetMonth = String(targetTime.getMonth() + 1).padStart(2, '0');
-            const targetDayOfMonth = String(targetTime.getDate()).padStart(2, '0');
-            const targetDate = `${targetYear}-${targetMonth}-${targetDayOfMonth}`;
-
-            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            console.log("Source Local Time:", `${formatTime(hours, minutes)} ${sourceDate.value} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`);
-            console.log("Target Local Time:", `${formatTime(targetHours, targetMinutes)} ${targetDate} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`);
-            console.log("Target Date:", targetDate);
-            console.log("Target Day (calculated):", daysOfWeek[targetTime.getDay()]);
-
-            const sourceDisplayTime = formatTime(hours, minutes);
-            const targetDisplayTime = formatTime(targetHours, targetMinutes);
-
-            const sourceDay = daysOfWeek[effectiveSourceTime.getDay()];
-            const targetDay = daysOfWeek[targetTime.getDay()];
-
-            sourceTimeDisplay.textContent = `Time: ${sourceDisplayTime} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`;
-            sourceDayDisplay.textContent = `Day: ${sourceDay}`;
-            sourceWarning.textContent = sourceStatus.warning;
-            targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
-            targetDayDisplay.textContent = `Day: ${targetDay}`;
-            targetDateDisplay.textContent = `Date: ${targetDate}`;
-            targetWarning.textContent = targetStatus.warning;
-
-            sourceTimeDisplay.classList.add('updated');
-            targetTimeDisplay.classList.add('updated');
-            setTimeout(() => {
-                sourceTimeDisplay.classList.remove('updated');
-                targetTimeDisplay.classList.remove('updated');
-            }, 1000);
-
-            addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
-        }
-
-        // Part 3D: Event Listeners and Initialization
-        function adjustSourceTime() {
-            if (sourceAdjustedTime) {
-                sourceHour.value = sourceAdjustedTime.getHours();
-                sourceMinute.value = sourceAdjustedTime.getMinutes();
-                sourceHourDisplay.textContent = sourceHour.value;
-                sourceMinuteDisplay.textContent = sourceMinute.value;
-                convertTime();
-            }
-        }
-
-        function adjustTargetTime() {
-            if (targetAdjustedTime) {
-                const date = new Date(sourceDate.value);
-                date.setHours(targetAdjustedTime.getHours(), targetAdjustedTime.getMinutes(), 0, 0);
-                sourceHour.value = date.getHours();
-                sourceMinute.value = date.getMinutes();
-                sourceHourDisplay.textContent = sourceHour.value;
-                sourceMinuteDisplay.textContent = sourceMinute.value;
-                convertTime();
-            }
-        }
-
-        function swapTimezones() {
-            const tempTimezone = sourceTimezone.value;
-            const tempCity = sourceCity.value;
-            sourceTimezone.value = targetTimezone.value;
-            sourceCity.value = targetCity.value;
-            targetTimezone.value = tempTimezone;
-            targetCity.value = tempCity;
-
-            const tempHour = sourceHour.value;
-            const tempMinute = sourceMinute.value;
-            const tempDate = sourceDate.value;
-
-            const targetTime = new Date(targetDateDisplay.textContent.replace("Date: ", ""));
-            sourceHour.value = targetTime.getHours();
-            sourceMinute.value = targetTime.getMinutes();
-            sourceDate.value = formatDate(targetTime);
-
-            sourceHourDisplay.textContent = sourceHour.value;
-            sourceMinuteDisplay.textContent = sourceMinute.value;
-
-            convertTime();
-        }
-
-        sourceHour.oninput = () => {
-            sourceHourDisplay.textContent = sourceHour.value;
-            convertTime();
-        };
-        sourceMinute.oninput = () => {
-            sourceMinuteDisplay.textContent = sourceMinute.value;
-            convertTime();
-        };
-        sourceDate.onchange = convertTime;
-        sourceTimezone.onchange = () => {
-            sourceCity.value = ''; // Clear city when timezone is manually selected
+    if (sourceCity.value) {
+        const tz = getTimezoneFromCity(sourceCity.value);
+        if (tz) {
+            sourceTimezone.value = tz;
+            updateSelectionUI('source', 'city');
+        } else {
             updateSelectionUI('source', 'timezone');
-            convertTime();
-        };
-        targetTimezone.onchange = () => {
-            targetCity.value = ''; // Clear city when timezone is manually selected
-            updateSelectionUI('target', 'timezone');
-            convertTime();
-        };
-        sourceCity.onchange = () => {
-            const tz = getTimezoneFromCity(sourceCity.value);
-            if (tz) {
-                sourceTimezone.value = tz;
-                updateSelectionUI('source', 'city');
-                convertTime();
-            }
-        };
-        targetCity.onchange = () => {
-            const tz = getTimezoneFromCity(targetCity.value);
-            if (tz) {
-                targetTimezone.value = tz;
-                updateSelectionUI('target', 'city');
-                convertTime();
-            }
-        };
-        sourceDSTChoice.onchange = convertTime;
-        targetDSTChoice.onchange = convertTime;
-        sourceAdjustButton.onclick = adjustSourceTime;
-        targetAdjustButton.onclick = adjustTargetTime;
-        document.getElementById('swapButton').onclick = swapTimezones;
-
-        // Initialization
-        populateTimezones();
-        populateCities();
-        sourceTimezone.value = "UTC (UTC+0) - Coordinated Universal Time";
-        sourceCity.value = "";
+        }
+    } else {
         updateSelectionUI('source', 'timezone');
-        setDefaultTargetToUserLocation();
+    }
+
+    if (targetCity.value) {
+        const tz = getTimezoneFromCity(targetCity.value);
+        if (tz) {
+            targetTimezone.value = tz;
+            updateSelectionUI('target', 'city');
+        } else {
+            updateSelectionUI('target', 'timezone');
+        }
+    } else {
+        updateSelectionUI('target', 'timezone');
+    }
+
+    const sourceStatus = getDSTStatus(sourceTimezone.value, date, sourceChoice);
+    let sourceOffset = sourceStatus.offset;
+    sourceAdjustedTime = sourceStatus.adjustedTime;
+    let effectiveSourceTime = sourceAdjustedTime || date;
+
+    const targetStatus = getDSTStatus(targetTimezone.value, effectiveSourceTime, targetChoice);
+    let targetOffset = targetStatus.offset;
+    targetAdjustedTime = targetStatus.adjustedTime;
+    let effectiveTargetTime = targetAdjustedTime || effectiveSourceTime;
+
+    sourceDSTChoice.style.display = sourceStatus.isAmbiguous ? "block" : "none";
+    sourceAdjustButton.style.display = sourceStatus.isSkipped ? "block" : "none";
+    targetDSTChoice.style.display = targetStatus.isAmbiguous ? "block" : "none";
+    targetAdjustButton.style.display = targetStatus.isSkipped ? "block" : "none";
+
+    const utcTimeMs = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
+    const targetTime = new Date(utcTimeMs + (targetOffset * 60 * 60 * 1000));
+
+    const targetHours = targetTime.getHours();
+    const targetMinutes = targetTime.getMinutes();
+    const targetYear = targetTime.getFullYear();
+    const targetMonth = String(targetTime.getMonth() + 1).padStart(2, '0');
+    const targetDayOfMonth = String(targetTime.getDate()).padStart(2, '0');
+    const targetDate = `${targetYear}-${targetMonth}-${targetDayOfMonth}`;
+
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    console.log("Source Local Time:", `${formatTime(hours, minutes)} ${sourceDate.value} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`);
+    console.log("Target Local Time:", `${formatTime(targetHours, targetMinutes)} ${targetDate} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`);
+    console.log("Target Date:", targetDate);
+    console.log("Target Day (calculated):", daysOfWeek[targetTime.getDay()]);
+
+    const sourceDisplayTime = formatTime(hours, minutes);
+    const targetDisplayTime = formatTime(targetHours, targetMinutes);
+
+    const sourceDay = daysOfWeek[effectiveSourceTime.getDay()];
+    const targetDay = daysOfWeek[targetTime.getDay()];
+
+    sourceTimeDisplay.textContent = `Time: ${sourceDisplayTime} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`;
+    sourceDayDisplay.textContent = `Day: ${sourceDay}`;
+    sourceWarning.textContent = sourceStatus.warning;
+    targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
+    targetDayDisplay.textContent = `Day: ${targetDay}`;
+    targetDateDisplay.textContent = `Date: ${targetDate}`;
+    targetWarning.textContent = targetStatus.warning;
+
+    sourceTimeDisplay.classList.add('updated');
+    targetTimeDisplay.classList.add('updated');
+    setTimeout(() => {
+        sourceTimeDisplay.classList.remove('updated');
+        targetTimeDisplay.classList.remove('updated');
+    }, 1000);
+
+    addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
+}
+        <!--Part3C above-->
+        <!--Part3D below-->
+            function adjustSourceTime() {
+    if (sourceAdjustedTime) {
+        sourceHour.value = sourceAdjustedTime.getHours();
+        sourceMinute.value = sourceAdjustedTime.getMinutes();
+        sourceHourDisplay.textContent = sourceHour.value;
+        sourceMinuteDisplay.textContent = sourceMinute.value;
+        convertTime();
+    }
+}
+
+function adjustTargetTime() {
+    if (targetAdjustedTime) {
+        const date = new Date(sourceDate.value);
+        date.setHours(targetAdjustedTime.getHours(), targetAdjustedTime.getMinutes(), 0, 0);
+        sourceHour.value = date.getHours();
+        sourceMinute.value = date.getMinutes();
+        sourceHourDisplay.textContent = sourceHour.value;
+        sourceMinuteDisplay.textContent = sourceMinute.value;
+        convertTime();
+    }
+}
+
+function swapTimezones() {
+    const tempTimezone = sourceTimezone.value;
+    const tempCity = sourceCity.value;
+    sourceTimezone.value = targetTimezone.value;
+    sourceCity.value = targetCity.value;
+    targetTimezone.value = tempTimezone;
+    targetCity.value = tempCity;
+
+    const tempHour = sourceHour.value;
+    const tempMinute = sourceMinute.value;
+    const tempDate = sourceDate.value;
+
+    const targetTime = new Date(targetDateDisplay.textContent.replace("Date: ", ""));
+    sourceHour.value = targetTime.getHours();
+    sourceMinute.value = targetTime.getMinutes();
+    sourceDate.value = formatDate(targetTime);
+
+    sourceHourDisplay.textContent = sourceHour.value;
+    sourceMinuteDisplay.textContent = sourceMinute.value;
+
+    convertTime();
+}
+
+sourceHour.oninput = () => {
+    sourceHourDisplay.textContent = sourceHour.value;
+    convertTime();
+};
+sourceMinute.oninput = () => {
+    sourceMinuteDisplay.textContent = sourceMinute.value;
+    convertTime();
+};
+sourceDate.onchange = convertTime;
+sourceTimezone.onchange = () => {
+    sourceCity.value = '';
+    updateSelectionUI('source', 'timezone');
+    convertTime();
+};
+targetTimezone.onchange = () => {
+    targetCity.value = '';
+    updateSelectionUI('target', 'timezone');
+    convertTime();
+};
+sourceCity.onchange = () => {
+    const tz = getTimezoneFromCity(sourceCity.value);
+    if (tz) {
+        sourceTimezone.value = tz;
+        updateSelectionUI('source', 'city');
+        convertTime();
+    }
+};
+targetCity.onchange = () => {
+    const tz = getTimezoneFromCity(targetCity.value);
+    if (tz) {
+        targetTimezone.value = tz;
+        updateSelectionUI('target', 'city');
+        convertTime();
+    }
+};
+sourceDSTChoice.onchange = convertTime;
+targetDSTChoice.onchange = convertTime;
+sourceAdjustButton.onclick = adjustSourceTime;
+targetAdjustButton.onclick = adjustTargetTime;
+document.getElementById('swapButton').onclick = swapTimezones;
+
+populateTimezones();
+populateCities();
+sourceTimezone.value = "UTC (UTC+0) - Coordinated Universal Time";
+sourceCity.value = "";
+updateSelectionUI('source', 'timezone');
+setDefaultTargetCity();
+        <!--Part3D above-->
+            
     </script>
 </body>
 </html>
