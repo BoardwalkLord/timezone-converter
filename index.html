@@ -151,8 +151,8 @@ button:hover {
             <div class="source">
                 <h2>Source</h2>
                 <label for="sourceCity">City:</label>
-                <input type="text" id="sourceCity" placeholder="Type a city...">
-                <div id="sourceCityDropdown" class="dropdown" style="display: none;"></div>
+                <input type="text" id="sourceCity" list="sourceCityList">
+                <datalist id="sourceCityList"></datalist>
                 <label for="sourceTimezone">Timezone:</label>
                 <select id="sourceTimezone"></select>
                 <label for="sourceDate">Date:</label>
@@ -178,8 +178,8 @@ button:hover {
             <div class="target">
                 <h2>Target</h2>
                 <label for="targetCity">City:</label>
-                <input type="text" id="targetCity" placeholder="Type a city...">
-                <div id="targetCityDropdown" class="dropdown" style="display: none;"></div>
+                <input type="text" id="targetCity" list="targetCityList">
+                <datalist id="targetCityList"></datalist>
                 <label for="targetTimezone">Timezone:</label>
                 <select id="targetTimezone"></select>
                 <div id="targetDSTChoice" style="display: none;">
@@ -448,9 +448,6 @@ const cityToTimezone = [
 ];
         //Part3A above
         //Part3B below
-        
-console.log('sourceCityList:', sourceCityList);
-console.log('targetCityList:', targetCityList);
 const sourceTimezone = document.getElementById('sourceTimezone');
 const targetTimezone = document.getElementById('targetTimezone');
 const sourceCity = document.getElementById('sourceCity');
@@ -478,6 +475,10 @@ const clearHistoryButton = document.getElementById('clearHistory');
 let sourceAdjustedTime = null;
 let targetAdjustedTime = null;
 
+// Debug logs to check DOM elements
+console.log('sourceCityList:', sourceCityList);
+console.log('targetCityList:', targetCityList);
+
 function populateTimezones() {
     timezones.forEach(tz => {
         const option1 = document.createElement('option');
@@ -490,12 +491,16 @@ function populateTimezones() {
 }
 
 function populateCities() {
+    if (!sourceCityList || !targetCityList) {
+        console.error('One or both city lists are missing in the DOM');
+        return;
+    }
     cityToTimezone.forEach(city => {
         const option1 = document.createElement('option');
         const option2 = document.createElement('option');
         option1.value = option2.value = city.city;
         option1.textContent = option2.textContent = city.city;
-        sourceCityList.appendChild(option1);
+        sourceCityList.appendChild(option1); // Line ~498
         targetCityList.appendChild(option2);
     });
 }
@@ -530,7 +535,8 @@ function updateSelectionUI(type, changed) {
             tzSelect.value = tz;
         }
     }
-}
+}        
+
         //Part3B above
         //Part3C below
 function getNthDayOfMonth(year, month, dayOfWeek, n) {
