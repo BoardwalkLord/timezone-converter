@@ -769,9 +769,9 @@
         // Define daysOfWeek before using it
         const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-        // Debugging logs
-        console.log("Source Time:", effectiveSourceTime.toUTCString());
-        console.log("Target Time:", targetTime.toUTCString());
+        // Debugging logs with corrected terminology
+        console.log("Source Local Time:", `${formatTime(hours, minutes)} ${sourceDate.value} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`);
+        console.log("Target Local Time:", `${formatTime(targetHours, targetMinutes)} ${targetDate} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`);
         console.log("Target Date:", targetDate);
         console.log("Target Day (calculated):", daysOfWeek[targetTime.getDay()]);
 
