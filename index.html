@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timezone Converter</title>
     <style>
-        <!-- CSS will go here in Part 2 -->
-        <!-- Part2 CSS below-->
+        /* Part2 CSS below */
         body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
@@ -142,7 +141,7 @@ button:hover {
 .dropdown-item small {
     color: #666;
 }
-        <!--Part2 CSS above-->
+        /* Part2 CSS above */
     </style>
 </head>
 <body>
@@ -201,8 +200,7 @@ button:hover {
         </div>
     </div>
     <script>
-        <!-- JavaScript will go here in Parts 3A, 3B, 3C, and 3D -->
-            <!--Part3A below-->
+            //Part3A below
 const timezones = [
     { name: "KST (UTC+14) - Kiribati Standard Time", offset: 14, dstRegion: null },
     { name: "CHADT (UTC+13:45) - Chatham Daylight Time", offset: 13.75, dstRegion: "NZ" },
@@ -448,9 +446,9 @@ const cityToTimezone = [
     { city: "Montevideo, Uruguay", timezone: "ART (UTC-3) - Argentina Time" },
     { city: "Caracas, Venezuela", timezone: "AST (UTC-4) - Atlantic Standard Time" }
 ];
-
-        <!--Part3A above-->
-        <!--Part3B below-->
+        //Part3A above
+        //Part3B below
+        
 console.log('sourceCityList:', sourceCityList);
 console.log('targetCityList:', targetCityList);
 const sourceTimezone = document.getElementById('sourceTimezone');
@@ -533,8 +531,8 @@ function updateSelectionUI(type, changed) {
         }
     }
 }
-        <!--Part3B above-->
-        <!--Part3C below-->
+        //Part3B above
+        //Part3C below
 function getNthDayOfMonth(year, month, dayOfWeek, n) {
     const firstDay = new Date(year, month, 1);
     const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
@@ -756,8 +754,9 @@ function convertTime() {
 
     addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
 }
-        <!--Part3C above-->
-        <!--Part3D below-->
+        //Part3C above
+        //Part3D below
+        
 function adjustSourceTime() {
     if (sourceAdjustedTime) {
         sourceHour.value = sourceAdjustedTime.getHours();
@@ -854,7 +853,7 @@ targetTimezone.value = getTimezoneFromCity(targetCity.value);
 updateSelectionUI('target', 'city');
 sourceDate.value = formatDate(new Date());
 convertTime();
-        <!--Part3D above-->
+        //Part3D above
 
     </script>
 </body>
