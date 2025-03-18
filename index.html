@@ -190,7 +190,6 @@ button:hover {
     { name: "JST (UTC+9) - Japan Standard Time", offset: 9, dstRegion: null },
     { name: "AEST (UTC+10) - Australian Eastern Standard Time", offset: 10, dstRegion: "AU" },
     { name: "NZST (UTC+12) - New Zealand Standard Time", offset: 12, dstRegion: "NZ" },
-    // Added timezones for broader coverage
     { name: "WAT (UTC+1) - West Africa Time", offset: 1, dstRegion: null },
     { name: "CAT (UTC+2) - Central Africa Time", offset: 2, dstRegion: null },
     { name: "EAT (UTC+3) - East Africa Time", offset: 3, dstRegion: null },
@@ -201,47 +200,56 @@ button:hover {
 ];
 
 const cityToTimezone = [
-    // North America
-    { city: "Washington, D.C., USA", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
-    { city: "New York, USA", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
-    { city: "Chicago, USA", timezone: "CST (UTC-6) - Central Standard Time (US)" },
-    { city: "Denver, USA", timezone: "MST (UTC-7) - Mountain Standard Time (US)" },
-    { city: "Los Angeles, USA", timezone: "PST (UTC-8) - Pacific Standard Time (US)" },
-    { city: "Ottawa, Canada", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
-    { city: "Mexico City, Mexico", timezone: "CST (UTC-6) - Central Standard Time (US)" },
-    // Europe
-    { city: "London, UK", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
+    // UTC+12
+    { city: "Wellington, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    { city: "Auckland, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    // UTC+10
+    { city: "Canberra, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
+    { city: "Sydney, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
+    // UTC+9
+    { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" },
+    // UTC+8
+    { city: "Beijing, China", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Shanghai, China", timezone: "CST (UTC+8) - China Standard Time" },
+    // UTC+5:30
+    { city: "New Delhi, India", timezone: "IST (UTC+5:30) - India Standard Time" },
+    { city: "Mumbai, India", timezone: "IST (UTC+5:30) - India Standard Time" },
+    // UTC+3
+    { city: "Moscow, Russia", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Nairobi, Kenya", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Ankara, Turkey", timezone: "MSK (UTC+3) - Moscow Time" },
+    // UTC+2
+    { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Cairo, Egypt", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Kyiv, Ukraine", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Pretoria, South Africa", timezone: "CAT (UTC+2) - Central Africa Time" },
+    // UTC+1
     { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Berlin, Germany", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Madrid, Spain", timezone: "CET (UTC+1) - Central European Time" },
     { city: "Rome, Italy", timezone: "CET (UTC+1) - Central European Time" },
-    { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
-    { city: "Moscow, Russia", timezone: "MSK (UTC+3) - Moscow Time" },
-    // Asia
-    { city: "New Delhi, India", timezone: "IST (UTC+5:30) - India Standard Time" },
-    { city: "Mumbai, India", timezone: "IST (UTC+5:30) - India Standard Time" },
-    { city: "Beijing, China", timezone: "CST (UTC+8) - China Standard Time" },
-    { city: "Shanghai, China", timezone: "CST (UTC+8) - China Standard Time" },
-    { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" },
-    // Oceania
-    { city: "Canberra, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
-    { city: "Sydney, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
-    { city: "Wellington, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
-    { city: "Auckland, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
-    // Africa
     { city: "Abuja, Nigeria", timezone: "WAT (UTC+1) - West Africa Time" },
-    { city: "Pretoria, South Africa", timezone: "CAT (UTC+2) - Central Africa Time" }, // Admin capital
-    { city: "Nairobi, Kenya", timezone: "EAT (UTC+3) - East Africa Time" },
-    { city: "Cairo, Egypt", timezone: "EET (UTC+2) - Eastern European Time" },
-    // South America
+    // UTC+0
+    { city: "London, UK", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
+    { city: "UTC Placeholder", timezone: "UTC (UTC+0) - Coordinated Universal Time" }, // No specific capital, placeholder
+    // UTC-3
     { city: "Brasília, Brazil", timezone: "BRT (UTC-3) - Brasília Time" },
     { city: "Buenos Aires, Argentina", timezone: "ART (UTC-3) - Argentina Time" },
+    // UTC-4
     { city: "Santiago, Chile", timezone: "CLT (UTC-4) - Chile Standard Time" },
-    // Additional Capitals
-    { city: "Havana, Cuba", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
     { city: "Bridgetown, Barbados", timezone: "AST (UTC-4) - Atlantic Standard Time" },
-    { city: "Kyiv, Ukraine", timezone: "EET (UTC+2) - Eastern European Time" },
-    { city: "Ankara, Turkey", timezone: "MSK (UTC+3) - Moscow Time" } // Turkey uses UTC+3 year-round
+    // UTC-5
+    { city: "Washington, D.C., USA", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "New York, USA", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Ottawa, Canada", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Havana, Cuba", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    // UTC-6
+    { city: "Chicago, USA", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Mexico City, Mexico", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    // UTC-7
+    { city: "Denver, USA", timezone: "MST (UTC-7) - Mountain Standard Time (US)" },
+    // UTC-8
+    { city: "Los Angeles, USA", timezone: "PST (UTC-8) - Pacific Standard Time (US)" }
 ];
         <!--Part3A above-->
         <!--Part3B below-->
