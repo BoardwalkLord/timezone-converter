@@ -766,6 +766,9 @@
         const targetDayOfMonth = String(targetTime.getDate()).padStart(2, '0');
         const targetDate = `${targetYear}-${targetMonth}-${targetDayOfMonth}`;
 
+        // Define daysOfWeek before using it
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
         // Debugging logs
         console.log("Source Time:", effectiveSourceTime.toUTCString());
         console.log("Target Time:", targetTime.toUTCString());
@@ -776,7 +779,6 @@
         const targetDisplayTime = formatTime(targetHours, targetMinutes);
 
         // Calculate and display the day of the week
-        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const sourceDay = daysOfWeek[effectiveSourceTime.getDay()];
         const targetDay = daysOfWeek[targetTime.getDay()];
 
