@@ -7,218 +7,156 @@
     <style>
     body {
         font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 20px auto;
-        background-color: #ecf0f1;
-        color: #333;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 20px;
     }
-    .converter-container {
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
         background: white;
-        padding: 30px;
-        border-radius: 10px;
+        padding: 20px;
+        border-radius: 8px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .time-section {
-        margin: 30px 0;
-        padding: 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e0e0e0;
+    h1 {
+        text-align: center;
+        color: #333;
     }
-    .time-section h2 {
-        font-size: 1.4em;
-        margin-bottom: 15px;
-        color: #2c3e50;
+    .section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
     }
-    select, input[type="date"], input[type="text"] {
-        padding: 10px;
-        width: 320px;
-        margin: 10px 0;
+    h2 {
+        margin-top: 0;
+        color: #555;
+    }
+    label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+    }
+    select, input[type="text"], input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
         border: 1px solid #ccc;
         border-radius: 4px;
-        font-size: 1.1em;
+        box-sizing: border-box;
     }
-    .slider-container {
-        margin: 10px 0;
-    }
-    .time-display {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: #333;
-        margin-top: 10px;
-        transition: color 0.3s ease;
-    }
-    .time-display.updated {
-        color: #e74c3c;
-    }
-    .warning {
-        color: #e74c3c;
-        font-size: 0.9em;
-        margin-top: 5px;
-        background: #fef5e7;
-        padding: 8px;
-        border-left: 4px solid #f39c12;
+    .time-input {
         display: flex;
         align-items: center;
-    }
-    .warning::before {
-        content: "⚠️ ";
-        margin-right: 5px;
-    }
-    .dst-choice, .adjust-button {
-        margin-top: 10px;
-        display: none;
-    }
-    .dst-choice label {
-        margin-right: 15px;
-    }
-    .adjust-button button, #clearHistoryButton, #swapButton {
-        padding: 8px 16px;
-        background-color: #2ecc71;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-        font-size: 1em;
-        transition: background-color 0.3s;
-    }
-    .adjust-button button:hover, #clearHistoryButton:hover, #swapButton:hover {
-        background-color: #27ae60;
+        gap: 5px;
+        margin-bottom: 10px;
     }
     input[type="range"] {
-        width: 100%;
-        height: 8px;
-        -webkit-appearance: none;
-        background: #ddd;
-        border-radius: 5px;
+        width: 100px;
     }
-    input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        background: #3498db;
-        border-radius: 50%;
+    p {
+        margin: 5px 0;
+    }
+    .updated {
+        animation: highlight 1s ease-out;
+    }
+    @keyframes highlight {
+        0% { background-color: #ffff99; }
+        100% { background-color: transparent; }
+    }
+    button {
+        padding: 8px 15px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 4px;
         cursor: pointer;
     }
-    input[type="range"]::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        background: #3498db;
-        border-radius: 50%;
-        cursor: pointer;
+    button:hover {
+        background-color: #0056b3;
     }
-    .label {
-        font-weight: bold;
-        color: #333;
-    }
-    #historySection {
+    .history {
         margin-top: 20px;
-        padding: 15px;
-        background: #fff;
-        border-radius: 5px;
-        box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        max-height: 300px;
-        overflow-y: auto;
     }
-    #historySection h2 {
-        margin-top: 0;
-        font-size: 1.2em;
-        color: #333;
-        display: inline;
-        margin-right: 10px;
-    }
-    #historyList {
+    ul {
         list-style: none;
         padding: 0;
     }
-    #historyList li {
+    li {
         padding: 5px 0;
         border-bottom: 1px solid #eee;
-        font-size: 0.9em;
-        color: #444;
     }
     .active-selection {
-        border-color: #2ecc71;
-        background-color: #e8f8f5;
+        border-color: #007BFF;
+        background-color: #e6f0ff;
     }
     .inactive-selection {
-        opacity: 0.7;
+        background-color: #f5f5f5;
     }
-    select:focus, input:focus, button:focus {
-        outline: 2px solid #3498db;
-        outline-offset: 2px;
-    }
-    #geoLoading {
-        color: #7f8c8d;
-        font-style: italic;
+    .dst-choice {
         margin: 10px 0;
+    }
+    .dst-choice label {
+        display: inline-block;
+        margin-right: 15px;
     }
 </style>
 </head>
 <body>
-    <div class="converter-container">
-        <h1>Timezone Converter with User Location</h1>
-        <div id="geoLoading" style="display: none;">Fetching location…</div>
-        <button id="swapButton" style="margin: 20px 0;">Swap ↔</button>
-
-        <div class="time-section" id="sourceSection">
+    <div class="container">
+        <h1>Timezone Converter</h1>
+        <div class="section">
             <h2>Source Time</h2>
-            <label for="sourceTimezone" class="label">From Timezone:</label>
-            <select id="sourceTimezone" aria-label="Source Timezone" class="timezone-select"></select>
-            <label for="sourceCity" class="label">Or Select/Type City:</label>
-            <input type="text" id="sourceCity" list="cityList" placeholder="Type or select a city" class="city-input" aria-label="Source City">
-            
-            <label for="sourceDate" class="label">Date:</label>
+            <label for="sourceTimezone">Timezone:</label>
+            <select id="sourceTimezone"></select>
+            <label for="sourceCity">Or City:</label>
+            <input type="text" id="sourceCity" list="cityList">
+            <datalist id="cityList"></datalist>
+            <label for="sourceDate">Date:</label>
             <input type="date" id="sourceDate" value="2025-03-17">
-            
-            <div class="slider-container">
-                <label for="sourceHour" class="label">Hour: <span id="sourceHourDisplay">12</span></label>
+            <label>Time:</label>
+            <div class="time-input">
                 <input type="range" id="sourceHour" min="0" max="23" value="12">
-                
-                <label for="sourceMinute" class="label">Minute: <span id="sourceMinuteDisplay">0</span></label>
+                <span id="sourceHourDisplay">12</span>
+                <span>:</span>
                 <input type="range" id="sourceMinute" min="0" max="59" value="0">
+                <span id="sourceMinuteDisplay">00</span>
             </div>
-            <div class="time-display" id="sourceTimeDisplay"></div>
-            <div class="warning" id="sourceWarning"></div>
-            <div class="dst-choice" id="sourceDSTChoice">
+            <p id="sourceTimeDisplay">Time: 12:00 PM (UTC+0)</p>
+            <p id="sourceDayDisplay">Day: </p>
+            <p id="sourceWarning"></p>
+            <div id="sourceDSTChoice" class="dst-choice" style="display: none;">
                 <label><input type="radio" name="sourceDST" value="standard" checked> Standard Time</label>
-                <label><input type="radio" name="sourceDST" value="dst"> DST</label>
+                <label><input type="radio" name="sourceDST" value="dst"> Daylight Saving Time</label>
             </div>
-            <div class="adjust-button" id="sourceAdjustButton">
-                <button onclick="adjustSourceTime()">Set to Valid Time</button>
-            </div>
+            <button id="sourceAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
         </div>
-
-        <div class="time-section" id="targetSection">
+        <div class="section">
             <h2>Target Time</h2>
-            <label for="targetTimezone" class="label">To Timezone:</label>
-            <select id="targetTimezone" aria-label="Target Timezone" class="timezone-select"></select>
-            <label for="targetCity" class="label">Or Select/Type City:</label>
-            <input type="text" id="targetCity" list="cityList" placeholder="Type or select a city" class="city-input" aria-label="Target City">
-            
-            <div class="time-display" id="targetTimeDisplay"></div>
-            <div class="time-display" id="targetDateDisplay"></div>
-            <div class="warning" id="targetWarning"></div>
-            <div class="dst-choice" id="targetDSTChoice">
+            <label for="targetTimezone">Timezone:</label>
+            <select id="targetTimezone"></select>
+            <label for="targetCity">Or City:</label>
+            <input type="text" id="targetCity" list="cityList">
+            <p id="geoLoading" style="display: none;">Detecting location...</p>
+            <p id="targetTimeDisplay">Converted Time: </p>
+            <p id="targetDayDisplay">Day: </p>
+            <p id="targetDateDisplay">Date: </p>
+            <p id="targetWarning"></p>
+            <div id="targetDSTChoice" class="dst-choice" style="display: none;">
                 <label><input type="radio" name="targetDST" value="standard" checked> Standard Time</label>
-                <label><input type="radio" name="targetDST" value="dst"> DST</label>
+                <label><input type="radio" name="targetDST" value="dst"> Daylight Saving Time</label>
             </div>
-            <div class="adjust-button" id="targetAdjustButton">
-                <button onclick="adjustTargetTime()">Set to Valid Time</button>
-            </div>
+            <button id="targetAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
         </div>
-
-        <div id="historySection">
+        <button id="swapButton">Swap</button>
+        <div class="history">
             <h2>Conversion History</h2>
-            <button id="clearHistoryButton" onclick="clearHistory()">Clear History</button>
             <ul id="historyList"></ul>
+            <button onclick="clearHistory()">Clear History</button>
         </div>
-
-        <datalist id="cityList"></datalist>
     </div>
-
-    <!-- JavaScript will go here in Part 3 -->
+    <!--Part 3A below-->
     <script>
     const timezones = [
         {name: "IDLW (UTC-12) - International Date Line West", offset: -12, dstRegion: null},
@@ -483,7 +421,9 @@
         {city: "Auckland, New Zealand", timezone: "NZST (UTC+12) - New Zealand", lat: -36.8485, lon: 174.7633},
         {city: "Kiritimati, Kiribati", timezone: "LINT (UTC+14) - Line Islands (No DST)", lat: 1.9876, lon: -157.4750}
     ];
-            // DOM elements
+    <!--Part 3A above-->
+    <!--Part 3B below-->
+        // DOM elements
     const sourceTimezone = document.getElementById('sourceTimezone');
     const targetTimezone = document.getElementById('targetTimezone');
     const sourceCity = document.getElementById('sourceCity');
@@ -495,10 +435,12 @@
     const sourceHourDisplay = document.getElementById('sourceHourDisplay');
     const sourceMinuteDisplay = document.getElementById('sourceMinuteDisplay');
     const sourceTimeDisplay = document.getElementById('sourceTimeDisplay');
+    const sourceDayDisplay = document.getElementById('sourceDayDisplay');
     const sourceWarning = document.getElementById('sourceWarning');
     const sourceDSTChoice = document.getElementById('sourceDSTChoice');
     const sourceAdjustButton = document.getElementById('sourceAdjustButton');
     const targetTimeDisplay = document.getElementById('targetTimeDisplay');
+    const targetDayDisplay = document.getElementById('targetDayDisplay');
     const targetDateDisplay = document.getElementById('targetDateDisplay');
     const targetWarning = document.getElementById('targetWarning');
     const targetDSTChoice = document.getElementById('targetDSTChoice');
@@ -632,7 +574,9 @@
     function formatDate(date) {
         return date.toISOString().split('T')[0];
     }
-            // Get nth occurrence of a day in a month
+    <!--Part 3B above-->
+    <!--Part 3C below-->
+        // Get nth occurrence of a day in a month
     function getNthDayOfMonth(year, month, dayOfWeek, n) {
         const firstDay = new Date(year, month, 1);
         const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
@@ -819,9 +763,17 @@
 
         const sourceDisplayTime = formatTime(hours, minutes);
         const targetDisplayTime = formatTime(targetHours, targetMinutes);
+
+        // Calculate and display the day of the week
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const sourceDay = daysOfWeek[effectiveSourceTime.getDay()];
+        const targetDay = daysOfWeek[targetTime.getDay()];
+
         sourceTimeDisplay.textContent = `Time: ${sourceDisplayTime} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`;
+        sourceDayDisplay.textContent = `Day: ${sourceDay}`;
         sourceWarning.textContent = sourceStatus.warning;
         targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
+        targetDayDisplay.textContent = `Day: ${targetDay}`;
         targetDateDisplay.textContent = `Date: ${targetDate}`;
         targetWarning.textContent = targetStatus.warning;
 
@@ -834,7 +786,9 @@
 
         addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
     }
-            // Adjust source time to next valid time
+    <!--Part 3C above-->
+    <!--Part 3D below-->
+        // Adjust source time to next valid time
     function adjustSourceTime() {
         if (sourceAdjustedTime) {
             sourceHour.value = sourceAdjustedTime.getHours();
@@ -918,19 +872,20 @@
             convertTime();
         }
     };
-    document.getElementById('swapButton').onclick = swapTimezones;
     sourceDSTChoice.onchange = convertTime;
     targetDSTChoice.onchange = convertTime;
+    sourceAdjustButton.onclick = adjustSourceTime;
+    targetAdjustButton.onclick = adjustTargetTime;
+    document.getElementById('swapButton').onclick = swapTimezones;
 
-    // Initialize
+    // Initialization
     populateTimezones();
     populateCities();
-    setDefaultTargetCity();
-    sourceHourDisplay.textContent = sourceHour.value;
-    sourceMinuteDisplay.textContent = sourceMinute.value;
     sourceTimezone.value = "UTC (UTC+0) - Coordinated Universal Time";
+    sourceCity.value = "";
     updateSelectionUI('source', 'timezone');
-    convertTime();
+    setDefaultTargetCity();
 </script>
+    <!--Part 3D above-->
 </body>
 </html>
