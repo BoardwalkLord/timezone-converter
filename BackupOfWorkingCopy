@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timezone Converter</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.converter {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.source, .target {
+    flex: 1;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+h2 {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    color: #666;
+}
+
+select, input[type="text"], input[type="date"], input[type="range"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.time-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-input span {
+    font-size: 1.1em;
+    color: #333;
+}
+
+.updated {
+    background-color: #e0ffe0;
+    transition: background-color 1s ease;
+}
+
+button {
+    padding: 8px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#swapButton {
+    align-self: center;
+}
+
+.history {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#historyList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#historyList li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+#clearHistory {
+    margin-top: 10px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Timezone Converter</h1>
+        <div class="converter">
+            <div class="source">
+                <h2>Source</h2>
+                <label for="sourceCity">City:</label>
+                <input type="text" id="sourceCity" list="sourceCityList" autofocus>
+                <datalist id="sourceCityList"></datalist>
+                <label for="sourceTimezone">Timezone:</label>
+                <select id="sourceTimezone"></select>
+                <label for="sourceDate">Date:</label>
+                <input type="date" id="sourceDate">
+                <label>Time:</label>
+                <div class="time-input">
+                    <input type="range" id="sourceHour" min="0" max="23" value="12">
+                    <span id="sourceHourDisplay">12</span>
+                    <span>:</span>
+                    <input type="range" id="sourceMinute" min="0" max="59" value="0">
+                    <span id="sourceMinuteDisplay">0</span>
+                </div>
+                <div id="sourceDSTChoice" style="display: none;">
+                    <label><input type="radio" name="sourceDST" value="standard"> Standard</label>
+                    <label><input type="radio" name="sourceDST" value="dst"> DST</label>
+                </div>
+                <button id="sourceAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
+                <p id="sourceTimeDisplay">Time: </p>
+                <p id="sourceDayDisplay">Day: </p>
+                <p id="sourceWarning"></p>
+            </div>
+            <button id="swapButton">Swap</button>
+            <div class="target">
+                <h2>Target</h2>
+                <label for="targetCity">City:</label>
+                <input type="text" id="targetCity" list="targetCityList">
+                <datalist id="targetCityList"></datalist>
+                <label for="targetTimezone">Timezone:</label>
+                <select id="targetTimezone"></select>
+                <div id="targetDSTChoice" style="display: none;">
+                    <label><input type="radio" name="targetDST" value="standard"> Standard</label>
+                    <label><input type="radio" name="targetDST" value="dst"> DST</label>
+                </div>
+                <button id="targetAdjustButton" style="display: none;">Adjust to Next Valid Time</button>
+                <p id="targetTimeDisplay">Converted Time: </p>
+                <p id="targetDayDisplay">Day: </p>
+                <p id="targetDateDisplay">Date: </p>
+                <p id="targetWarning"></p>
+            </div>
+        </div>
+        <div class="history">
+            <h2>History</h2>
+            <ul id="historyList"></ul>
+            <button id="clearHistory">Clear History</button>
+        </div>
+    </div>
+    <script>
+        const timezones = [
+    { name: "KST (UTC+14) - Kiribati Standard Time", offset: 14, dstRegion: null },
+    { name: "CHADT (UTC+13:45) - Chatham Daylight Time", offset: 13.75, dstRegion: "NZ" },
+    { name: "TOT (UTC+13) - Tonga Time", offset: 13, dstRegion: null },
+    { name: "NZST (UTC+12) - New Zealand Standard Time", offset: 12, dstRegion: "NZ" },
+    { name: "FJST (UTC+12) - Fiji Standard Time", offset: 12, dstRegion: null },
+    { name: "VUT (UTC+11) - Vanuatu Time", offset: 11, dstRegion: null },
+    { name: "AEST (UTC+10) - Australian Eastern Standard Time", offset: 10, dstRegion: "AU" },
+    { name: "JST (UTC+9) - Japan Standard Time", offset: 9, dstRegion: null },
+    { name: "CST (UTC+8) - China Standard Time", offset: 8, dstRegion: null },
+    { name: "WIB (UTC+7) - Western Indonesia Time", offset: 7, dstRegion: null },
+    { name: "ICT (UTC+7) - Indochina Time", offset: 7, dstRegion: null },
+    { name: "IST (UTC+5:30) - India Standard Time", offset: 5.5, dstRegion: null },
+    { name: "PKT (UTC+5) - Pakistan Standard Time", offset: 5, dstRegion: null },
+    { name: "GET (UTC+4) - Georgia Standard Time", offset: 4, dstRegion: null },
+    { name: "MSK (UTC+3) - Moscow Time", offset: 3, dstRegion: null },
+    { name: "EAT (UTC+3) - East Africa Time", offset: 3, dstRegion: null },
+    { name: "IST (UTC+2) - Israel Standard Time", offset: 2, dstRegion: "IL" }, // Added for Israel
+    { name: "EET (UTC+2) - Eastern European Time", offset: 2, dstRegion: "EU" },
+    { name: "CAT (UTC+2) - Central Africa Time", offset: 2, dstRegion: null },
+    { name: "CET (UTC+1) - Central European Time", offset: 1, dstRegion: "EU" },
+    { name: "WAT (UTC+1) - West Africa Time", offset: 1, dstRegion: null },
+    { name: "UTC (UTC+0) - Coordinated Universal Time", offset: 0, dstRegion: null },
+    { name: "GMT (UTC+0) - Greenwich Mean Time (UK)", offset: 0, dstRegion: "EU" },
+    { name: "WET (UTC+0) - Western European Time", offset: 0, dstRegion: "EU" },
+    { name: "CVT (UTC-1) - Cape Verde Time", offset: -1, dstRegion: null },
+    { name: "GST (UTC-2) - South Georgia Time", offset: -2, dstRegion: null },
+    { name: "BRT (UTC-3) - Brasília Time", offset: -3, dstRegion: "BR" },
+    { name: "ART (UTC-3) - Argentina Time", offset: -3, dstRegion: null },
+    { name: "NST (UTC-3:30) - Newfoundland Standard Time", offset: -3.5, dstRegion: "CA" },
+    { name: "AST (UTC-4) - Atlantic Standard Time", offset: -4, dstRegion: null },
+    { name: "CLT (UTC-4) - Chile Standard Time", offset: -4, dstRegion: "CL" },
+    { name: "EST (UTC-5) - Eastern Standard Time (US)", offset: -5, dstRegion: "US" },
+    { name: "CST (UTC-6) - Central Standard Time (US)", offset: -6, dstRegion: "US" },
+    { name: "CST (UTC-6) - Central Standard Time (Mexico)", offset: -6, dstRegion: "MX" }, // Added for Mexico
+    { name: "MST (UTC-7) - Mountain Standard Time (US)", offset: -7, dstRegion: "US" },
+    { name: "PST (UTC-8) - Pacific Standard Time (US)", offset: -8, dstRegion: "US" },
+    { name: "AKST (UTC-9) - Alaska Standard Time", offset: -9, dstRegion: "US" },
+    { name: "HST (UTC-10) - Hawaii Standard Time", offset: -10, dstRegion: null },
+    { name: "NUT (UTC-11) - Niue Time", offset: -11, dstRegion: null },
+    { name: "BIT (UTC-12) - Baker Island Time", offset: -12, dstRegion: null }
+];
+
+const cityToTimezone = [
+    { city: "Algiers, Algeria", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Luanda, Angola", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Porto-Novo, Benin", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Gaborone, Botswana", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Ouagadougou, Burkina Faso", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Gitega, Burundi", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Yaoundé, Cameroon", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Praia, Cape Verde", timezone: "CVT (UTC-1) - Cape Verde Time" },
+    { city: "Bangui, Central African Republic", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "N'Djamena, Chad", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Moroni, Comoros", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Kinshasa, Democratic Republic of the Congo", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Brazzaville, Republic of the Congo", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Djibouti, Djibouti", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Cairo, Egypt", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Malabo, Equatorial Guinea", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Asmara, Eritrea", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Mbabane, Eswatini", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Addis Ababa, Ethiopia", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Libreville, Gabon", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Banjul, Gambia", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Accra, Ghana", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Conakry, Guinea", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Bissau, Guinea-Bissau", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Nairobi, Kenya", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Maseru, Lesotho", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Monrovia, Liberia", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Tripoli, Libya", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Antananarivo, Madagascar", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Lilongwe, Malawi", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Bamako, Mali", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Nouakchott, Mauritania", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Port Louis, Mauritius", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "Rabat, Morocco", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Maputo, Mozambique", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Windhoek, Namibia", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Niamey, Niger", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Abuja, Nigeria", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Kigali, Rwanda", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "São Tomé, São Tomé and Príncipe", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Dakar, Senegal", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Victoria, Seychelles", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "Freetown, Sierra Leone", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Mogadishu, Somalia", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Pretoria, South Africa", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Juba, South Sudan", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Khartoum, Sudan", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Dodoma, Tanzania", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Lomé, Togo", timezone: "UTC (UTC+0) - Coordinated Universal Time" },
+    { city: "Tunis, Tunisia", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Kampala, Uganda", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Lusaka, Zambia", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Harare, Zimbabwe", timezone: "CAT (UTC+2) - Central Africa Time" },
+    { city: "Kabul, Afghanistan", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "Yerevan, Armenia", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "Baku, Azerbaijan", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "Manama, Bahrain", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Dhaka, Bangladesh", timezone: "WIB (UTC+7) - Western Indonesia Time" },
+    { city: "Thimphu, Bhutan", timezone: "WIB (UTC+7) - Western Indonesia Time" },
+    { city: "Bandar Seri Begawan, Brunei", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Phnom Penh, Cambodia", timezone: "ICT (UTC+7) - Indochina Time" },
+    { city: "Beijing, China", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Nicosia, Cyprus", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Tbilisi, Georgia", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "New Delhi, India", timezone: "IST (UTC+5:30) - India Standard Time" },
+    { city: "Jakarta, Indonesia", timezone: "WIB (UTC+7) - Western Indonesia Time" },
+    { city: "Tehran, Iran", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Baghdad, Iraq", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Jerusalem, Israel", timezone: "IST (UTC+2) - Israel Standard Time" }, // Updated
+    { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" },
+    { city: "Amman, Jordan", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Astana, Kazakhstan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
+    { city: "Kuwait City, Kuwait", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Bishkek, Kyrgyzstan", timezone: "WIB (UTC+7) - Western Indonesia Time" },
+    { city: "Vientiane, Laos", timezone: "ICT (UTC+7) - Indochina Time" },
+    { city: "Beirut, Lebanon", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Kuala Lumpur, Malaysia", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Malé, Maldives", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
+    { city: "Ulaanbaatar, Mongolia", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Naypyidaw, Myanmar", timezone: "ICT (UTC+7) - Indochina Time" },
+    { city: "Kathmandu, Nepal", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
+    { city: "Pyongyang, North Korea", timezone: "JST (UTC+9) - Japan Standard Time" },
+    { city: "Muscat, Oman", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "Islamabad, Pakistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
+    { city: "Ramallah, Palestine", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Manila, Philippines", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Doha, Qatar", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Riyadh, Saudi Arabia", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Singapore, Singapore", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Seoul, South Korea", timezone: "JST (UTC+9) - Japan Standard Time" },
+    { city: "Colombo, Sri Lanka", timezone: "IST (UTC+5:30) - India Standard Time" },
+    { city: "Damascus, Syria", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Taipei, Taiwan", timezone: "CST (UTC+8) - China Standard Time" },
+    { city: "Dushanbe, Tajikistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
+    { city: "Bangkok, Thailand", timezone: "ICT (UTC+7) - Indochina Time" },
+    { city: "Dili, East Timor", timezone: "JST (UTC+9) - Japan Standard Time" },
+    { city: "Ankara, Turkey", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Ashgabat, Turkmenistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
+    { city: "Abu Dhabi, United Arab Emirates", timezone: "GET (UTC+4) - Georgia Standard Time" },
+    { city: "Tashkent, Uzbekistan", timezone: "PKT (UTC+5) - Pakistan Standard Time" },
+    { city: "Hanoi, Vietnam", timezone: "ICT (UTC+7) - Indochina Time" },
+    { city: "Sana'a, Yemen", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Tirana, Albania", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Andorra la Vella, Andorra", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Vienna, Austria", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Minsk, Belarus", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "Brussels, Belgium", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Sarajevo, Bosnia and Herzegovina", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Sofia, Bulgaria", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Zagreb, Croatia", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Prague, Czech Republic", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Copenhagen, Denmark", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Tallinn, Estonia", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Helsinki, Finland", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Berlin, Germany", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Budapest, Hungary", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Reykjavik, Iceland", timezone: "WET (UTC+0) - Western European Time" },
+    { city: "Dublin, Ireland", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
+    { city: "Rome, Italy", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Pristina, Kosovo", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Riga, Latvia", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Vaduz, Liechtenstein", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Vilnius, Lithuania", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Luxembourg City, Luxembourg", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Valletta, Malta", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Chișinău, Moldova", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Monaco, Monaco", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Podgorica, Montenegro", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Amsterdam, Netherlands", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Skopje, North Macedonia", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Oslo, Norway", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Warsaw, Poland", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Lisbon, Portugal", timezone: "WET (UTC+0) - Western European Time" },
+    { city: "Bucharest, Romania", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Moscow, Russia", timezone: "MSK (UTC+3) - Moscow Time" },
+    { city: "San Marino, San Marino", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Belgrade, Serbia", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Bratislava, Slovakia", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Ljubljana, Slovenia", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Madrid, Spain", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Stockholm, Sweden", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Bern, Switzerland", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Kyiv, Ukraine", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "London, United Kingdom", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
+    { city: "Vatican City, Vatican City", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Saint John's, Antigua and Barbuda", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Nassau, Bahamas", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Bridgetown, Barbados", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Belmopan, Belize", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Ottawa, Canada", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "San José, Costa Rica", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Havana, Cuba", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Roseau, Dominica", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Santo Domingo, Dominican Republic", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "San Salvador, El Salvador", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Saint George's, Grenada", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Guatemala City, Guatemala", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Port-au-Prince, Haiti", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Tegucigalpa, Honduras", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Kingston, Jamaica", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Mexico City, Mexico", timezone: "CST (UTC-6) - Central Standard Time (Mexico)" }, // Updated
+    { city: "Managua, Nicaragua", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    { city: "Panama City, Panama", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Basseterre, Saint Kitts and Nevis", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Castries, Saint Lucia", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Kingstown, Saint Vincent and the Grenadines", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Port of Spain, Trinidad and Tobago", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Washington, D.C., United States", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Canberra, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
+    { city: "Suva, Fiji", timezone: "FJST (UTC+12) - Fiji Standard Time" },
+    { city: "Tarawa, Kiribati", timezone: "KST (UTC+14) - Kiribati Standard Time" },
+    { city: "Majuro, Marshall Islands", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    { city: "Palikir, Federated States of Micronesia", timezone: "VUT (UTC+11) - Vanuatu Time" },
+    { city: "Yaren, Nauru", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    { city: "Wellington, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    { city: "Ngerulmud, Palau", timezone: "JST (UTC+9) - Japan Standard Time" },
+    { city: "Port Moresby, Papua New Guinea", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
+    { city: "Apia, Samoa", timezone: "TOT (UTC+13) - Tonga Time" },
+    { city: "Honiara, Solomon Islands", timezone: "VUT (UTC+11) - Vanuatu Time" },
+    { city: "Nuku'alofa, Tonga", timezone: "TOT (UTC+13) - Tonga Time" },
+    { city: "Funafuti, Tuvalu", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    { city: "Port Vila, Vanuatu", timezone: "VUT (UTC+11) - Vanuatu Time" },
+    { city: "Buenos Aires, Argentina", timezone: "ART (UTC-3) - Argentina Time" },
+    { city: "La Paz, Bolivia", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Brasília, Brazil", timezone: "BRT (UTC-3) - Brasília Time" },
+    { city: "Santiago, Chile", timezone: "CLT (UTC-4) - Chile Standard Time" },
+    { city: "Bogotá, Colombia", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Quito, Ecuador", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Georgetown, Guyana", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Asunción, Paraguay", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Lima, Peru", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Paramaribo, Suriname", timezone: "ART (UTC-3) - Argentina Time" },
+    { city: "Montevideo, Uruguay", timezone: "ART (UTC-3) - Argentina Time" },
+    { city: "Caracas, Venezuela", timezone: "AST (UTC-4) - Atlantic Standard Time" }
+];
+        const sourceTimezone = document.getElementById('sourceTimezone');
+const targetTimezone = document.getElementById('targetTimezone');
+const sourceCity = document.getElementById('sourceCity');
+const targetCity = document.getElementById('targetCity');
+const sourceCityList = document.getElementById('sourceCityList');
+const targetCityList = document.getElementById('targetCityList');
+const sourceDate = document.getElementById('sourceDate');
+const sourceHour = document.getElementById('sourceHour');
+const sourceMinute = document.getElementById('sourceMinute');
+const sourceHourDisplay = document.getElementById('sourceHourDisplay');
+const sourceMinuteDisplay = document.getElementById('sourceMinuteDisplay');
+const sourceTimeDisplay = document.getElementById('sourceTimeDisplay');
+const sourceDayDisplay = document.getElementById('sourceDayDisplay');
+const sourceWarning = document.getElementById('sourceWarning');
+const targetTimeDisplay = document.getElementById('targetTimeDisplay');
+const targetDayDisplay = document.getElementById('targetDayDisplay');
+const targetDateDisplay = document.getElementById('targetDateDisplay');
+const targetWarning = document.getElementById('targetWarning');
+const sourceDSTChoice = document.getElementById('sourceDSTChoice');
+const targetDSTChoice = document.getElementById('targetDSTChoice');
+const sourceAdjustButton = document.getElementById('sourceAdjustButton');
+const targetAdjustButton = document.getElementById('targetAdjustButton');
+const historyList = document.getElementById('historyList');
+const clearHistoryButton = document.getElementById('clearHistory');
+let sourceAdjustedTime = null;
+let targetAdjustedTime = null;
+
+function populateTimezones() {
+    timezones.forEach(tz => {
+        const option1 = document.createElement('option');
+        const option2 = document.createElement('option');
+        option1.value = option2.value = tz.name;
+        option1.textContent = option2.textContent = tz.name;
+        sourceTimezone.appendChild(option1);
+        targetTimezone.appendChild(option2);
+    });
+}
+
+function populateCities() {
+    if (!sourceCityList || !targetCityList) {
+        console.error('One or both city lists are missing in the DOM');
+        return;
+    }
+    cityToTimezone.forEach(city => {
+        const option1 = document.createElement('option');
+        const option2 = document.createElement('option');
+        option1.value = option2.value = city.city;
+        option1.textContent = option2.textContent = city.city;
+        sourceCityList.appendChild(option1);
+        targetCityList.appendChild(option2);
+    });
+}
+
+function filterCities(inputElement, datalistElement) {
+    const input = inputElement.value.toLowerCase();
+    datalistElement.innerHTML = '';
+    const filteredCities = cityToTimezone.filter(city => city.city.toLowerCase().includes(input));
+    filteredCities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city.city;
+        option.textContent = city.city;
+        datalistElement.appendChild(option);
+    });
+}
+
+function getTimezoneFromCity(city) {
+    const entry = cityToTimezone.find(c => c.city === city);
+    return entry ? entry.timezone : null;
+}
+
+function formatTime(hours, minutes) {
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+}
+
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+function updateSelectionUI(type, changed) {
+    const tzSelect = type === 'source' ? sourceTimezone : targetTimezone;
+    const cityInput = type === 'source' ? sourceCity : targetCity;
+    if (changed === 'timezone' && tzSelect.value) {
+        const tz = timezones.find(t => t.name === tzSelect.value);
+        if (tz) {
+            const matchingCity = cityToTimezone.find(c => c.timezone === tz.name);
+            cityInput.value = matchingCity ? matchingCity.city : '';
+        }
+    } else if (changed === 'city' && cityInput.value) {
+        const tz = getTimezoneFromCity(cityInput.value);
+        if (tz) {
+            tzSelect.value = tz;
+        }
+    }
+}
+        function getNthDayOfMonth(year, month, dayOfWeek, n) {
+    const firstDay = new Date(year, month, 1);
+    const daysUntilFirst = (dayOfWeek - firstDay.getDay() + 7) % 7;
+    return new Date(year, month, daysUntilFirst + 1 + (n - 1) * 7);
+}
+
+function getLastDayOfMonth(year, month, dayOfWeek) {
+    const lastDay = new Date(year, month + 1, 0);
+    const daysFromEnd = (lastDay.getDay() - dayOfWeek + 7) % 7;
+    return new Date(year, month, lastDay.getDate() - daysFromEnd);
+}
+
+function getDSTTransitions(year, region) {
+    if (region === "US" || region === "CA") {
+        const start = getNthDayOfMonth(year, 2, 0, 2); // 2nd Sunday in March
+        const end = getNthDayOfMonth(year, 10, 0, 1); // 1st Sunday in November
+        start.setHours(2, 0, 0, 0);
+        end.setHours(2, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 2 };
+    } else if (region === "EU") {
+        const start = getLastDayOfMonth(year, 2, 0); // Last Sunday in March
+        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
+        start.setUTCHours(1, 0, 0, 0);
+        end.setUTCHours(1, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 1, endHour: 1 };
+    } else if (region === "AU") {
+        const start = getNthDayOfMonth(year, 9, 0, 1); // 1st Sunday in October
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1); // 1st Sunday in April
+        start.setHours(2, 0, 0, 0);
+        end.setHours(3, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 3 };
+    } else if (region === "NZ") {
+        const start = getLastDayOfMonth(year, 8, 0); // Last Sunday in September
+        const end = getNthDayOfMonth(year + 1, 3, 0, 1); // 1st Sunday in April
+        start.setHours(2, 0, 0, 0);
+        end.setHours(3, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 3 };
+    } else if (region === "BR") {
+        const start = getNthDayOfMonth(year, 10, 0, 3); // 3rd Sunday in November
+        const end = getNthDayOfMonth(year + 1, 1, 0, 3); // 3rd Sunday in February
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 0, endHour: 0 };
+    } else if (region === "CL") {
+        const start = getNthDayOfMonth(year, 8, 6, 2); // 2nd Saturday in September
+        const end = getNthDayOfMonth(year + 1, 3, 6, 2); // 2nd Saturday in April
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 0, endHour: 0 };
+    } else if (region === "IL") { // Israel
+        const start = new Date(year, 2, 28);
+        while (start.getDay() !== 5) start.setDate(start.getDate() + 1); // Last Friday before April
+        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
+        start.setHours(2, 0, 0, 0);
+        end.setHours(2, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 2 };
+    } else if (region === "MX") { // Mexico (some regions)
+        const start = getNthDayOfMonth(year, 3, 0, 1); // 1st Sunday in April
+        const end = getLastDayOfMonth(year, 9, 0); // Last Sunday in October
+        start.setHours(2, 0, 0, 0);
+        end.setHours(2, 0, 0, 0);
+        return { start, end, offset: 1, startHour: 2, endHour: 2 };
+    }
+    return null;
+}
+
+function getDSTStatus(timezoneName, dateTime, userChoice = "standard") {
+    const timezone = timezones.find(tz => tz.name === timezoneName);
+    if (!timezone) {
+        console.error(`Timezone not found: ${timezoneName}`);
+        return { offset: 0, warning: "Invalid timezone selected", isAmbiguous: false, adjustedTime: null, isSkipped: false };
+    }
+    let offset = timezone.offset;
+    let warning = "";
+    let isAmbiguous = false;
+    let adjustedTime = null;
+    let isSkipped = false;
+
+    if (!timezone.dstRegion) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
+
+    const year = dateTime.getFullYear();
+    const transitions = getDSTTransitions(year, timezone.dstRegion);
+    if (!transitions) return { offset, warning, isAmbiguous, adjustedTime, isSkipped };
+
+    const utcTime = new Date(dateTime.getTime() + offset * 60 * 60 * 1000);
+    let isDST = false;
+
+    if (["AU", "NZ", "BR", "CL", "IL", "MX"].includes(timezone.dstRegion) && dateTime.getMonth() < 3) {
+        const prevTransitions = getDSTTransitions(year - 1, timezone.dstRegion);
+        isDST = utcTime >= prevTransitions.start && utcTime < transitions.end;
+    } else {
+        isDST = utcTime >= transitions.start && utcTime < transitions.end;
+    }
+
+    const localHours = dateTime.getHours();
+    const localMinutes = dateTime.getMinutes();
+
+    if (Math.abs(utcTime - transitions.start) < 60 * 60 * 1000) {
+        if (localHours === transitions.startHour && localMinutes >= 0 && localMinutes < 60) {
+            const adjustedHours = transitions.startHour + Math.abs(transitions.offset);
+            adjustedTime = new Date(dateTime);
+            adjustedTime.setHours(adjustedHours, 0, 0, 0);
+            warning = `Note: This time is skipped due to DST start (spring forward). Next valid time: ${formatTime(adjustedHours, 0)}.`;
+            isSkipped = true;
+            return { offset: offset + transitions.offset, warning, isAmbiguous, adjustedTime, isSkipped };
+        }
+    }
+
+    if (Math.abs(utcTime - transitions.end) < 60 * 60 * 1000) {
+        if (localHours === (transitions.endHour - transitions.offset) && localMinutes >= 0 && localMinutes < 60) {
+            warning = "Note: This time is ambiguous due to DST end (fall back). Choose below:";
+            isAmbiguous = true;
+            if (userChoice === "dst") {
+                isDST = true;
+            } else {
+                isDST = false;
+            }
+        }
+    }
+
+    return { offset: isDST ? offset + transitions.offset : offset, warning, isAmbiguous, adjustedTime, isSkipped };
+}
+
+function addToHistory(sourceTZ, sourceTime, sourceDate, targetTZ, targetTime, targetDate) {
+    const sourceCityName = sourceCity.value || "Unknown City";
+    const targetCityName = targetCity.value || "Unknown City";
+    const li = document.createElement('li');
+    li.textContent = `${sourceCityName} (${sourceTZ}): ${sourceTime}, ${sourceDate} → ${targetCityName} (${targetTZ}): ${targetTime}, ${targetDate}`;
+    historyList.insertBefore(li, historyList.firstChild);
+    if (historyList.children.length > 10) {
+        historyList.removeChild(historyList.lastChild);
+    }
+}
+
+function clearHistory() {
+    while (historyList.firstChild) {
+        historyList.removeChild(historyList.firstChild);
+    }
+}
+
+function convertTime() {
+    const date = new Date(sourceDate.value);
+    const hours = parseInt(sourceHour.value);
+    const minutes = parseInt(sourceMinute.value);
+    date.setHours(hours, minutes, 0, 0);
+
+    const sourceChoice = document.querySelector('input[name="sourceDST"]:checked')?.value || "standard";
+    const targetChoice = document.querySelector('input[name="targetDST"]:checked')?.value || "standard";
+
+    if (!sourceTimezone.value || !targetTimezone.value) {
+        sourceWarning.textContent = !sourceTimezone.value ? "Please select a source timezone" : "";
+        targetWarning.textContent = !targetTimezone.value ? "Please select a target timezone" : "";
+        return;
+    }
+
+    if (sourceCity.value) {
+        const tz = getTimezoneFromCity(sourceCity.value);
+        if (tz) {
+            sourceTimezone.value = tz;
+            updateSelectionUI('source', 'city');
+        } else {
+            updateSelectionUI('source', 'timezone');
+        }
+    } else {
+        updateSelectionUI('source', 'timezone');
+    }
+
+    if (targetCity.value) {
+        const tz = getTimezoneFromCity(targetCity.value);
+        if (tz) {
+            targetTimezone.value = tz;
+            updateSelectionUI('target', 'city');
+        } else {
+            updateSelectionUI('target', 'timezone');
+        }
+    } else {
+        updateSelectionUI('target', 'timezone');
+    }
+
+    const sourceStatus = getDSTStatus(sourceTimezone.value, date, sourceChoice);
+    let sourceOffset = sourceStatus.offset;
+    sourceAdjustedTime = sourceStatus.adjustedTime;
+    let effectiveSourceTime = sourceAdjustedTime || date;
+
+    const targetStatus = getDSTStatus(targetTimezone.value, effectiveSourceTime, targetChoice);
+    let targetOffset = targetStatus.offset;
+    targetAdjustedTime = targetStatus.adjustedTime;
+    let effectiveTargetTime = targetAdjustedTime || effectiveSourceTime;
+
+    sourceDSTChoice.style.display = sourceStatus.isAmbiguous ? "block" : "none";
+    sourceAdjustButton.style.display = sourceStatus.isSkipped ? "block" : "none";
+    targetDSTChoice.style.display = targetStatus.isAmbiguous ? "block" : "none";
+    targetAdjustButton.style.display = targetStatus.isSkipped ? "block" : "none";
+
+    const utcTimeMs = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
+    const targetTime = new Date(utcTimeMs + (targetOffset * 60 * 60 * 1000));
+
+    const targetHours = targetTime.getHours();
+    const targetMinutes = targetTime.getMinutes();
+    const targetYear = targetTime.getFullYear();
+    const targetMonth = String(targetTime.getMonth() + 1).padStart(2, '0');
+    const targetDayOfMonth = String(targetTime.getDate()).padStart(2, '0');
+    const targetDate = `${targetYear}-${targetMonth}-${targetDayOfMonth}`;
+
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    const sourceDisplayTime = formatTime(hours, minutes);
+    const targetDisplayTime = formatTime(targetHours, targetMinutes);
+
+    const sourceDay = daysOfWeek[effectiveSourceTime.getDay()];
+    const targetDay = daysOfWeek[targetTime.getDay()];
+
+    sourceTimeDisplay.textContent = `Time: ${sourceDisplayTime} (UTC${sourceOffset >= 0 ? '+' : ''}${sourceOffset})`;
+    sourceDayDisplay.textContent = `Day: ${sourceDay}`;
+    sourceWarning.textContent = sourceStatus.warning;
+    targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
+    targetDayDisplay.textContent = `Day: ${targetDay}`;
+    targetDateDisplay.textContent = `Date: ${targetDate}`;
+    targetWarning.textContent = targetStatus.warning;
+
+    sourceTimeDisplay.classList.add('updated');
+    targetTimeDisplay.classList.add('updated');
+    setTimeout(() => {
+        sourceTimeDisplay.classList.remove('updated');
+        targetTimeDisplay.classList.remove('updated');
+    }, 1000);
+
+    addToHistory(sourceTimezone.value, sourceDisplayTime, sourceDate.value, targetTimezone.value, targetDisplayTime, targetDate);
+}
+        function adjustSourceTime() {
+    if (sourceAdjustedTime) {
+        sourceHour.value = sourceAdjustedTime.getHours();
+        sourceMinute.value = sourceAdjustedTime.getMinutes();
+        sourceHourDisplay.textContent = sourceHour.value;
+        sourceMinuteDisplay.textContent = sourceMinute.value;
+        convertTime();
+    }
+}
+
+function adjustTargetTime() {
+    if (targetAdjustedTime) {
+        const date = new Date(sourceDate.value);
+        date.setHours(targetAdjustedTime.getHours(), targetAdjustedTime.getMinutes(), 0, 0);
+        sourceHour.value = date.getHours();
+        sourceMinute.value = date.getMinutes();
+        sourceHourDisplay.textContent = sourceHour.value;
+        sourceMinuteDisplay.textContent = sourceMinute.value;
+        convertTime();
+    }
+}
+
+function swapTimezones() {
+    const tempTimezone = sourceTimezone.value;
+    const tempCity = sourceCity.value;
+    sourceTimezone.value = targetTimezone.value;
+    sourceCity.value = targetCity.value;
+    targetTimezone.value = tempTimezone;
+    targetCity.value = tempCity;
+
+    const tempHour = sourceHour.value;
+    const tempMinute = sourceMinute.value;
+    const tempDate = sourceDate.value;
+
+    const targetTime = new Date(targetDateDisplay.textContent.replace("Date: ", ""));
+    sourceHour.value = targetTime.getHours();
+    sourceMinute.value = targetTime.getMinutes();
+    sourceDate.value = formatDate(targetTime);
+
+    sourceHourDisplay.textContent = sourceHour.value;
+    sourceMinuteDisplay.textContent = sourceMinute.value;
+
+    convertTime();
+}
+
+sourceHour.oninput = () => {
+    sourceHourDisplay.textContent = sourceHour.value;
+    convertTime();
+};
+sourceMinute.oninput = () => {
+    sourceMinuteDisplay.textContent = sourceMinute.value;
+    convertTime();
+};
+sourceDate.onchange = convertTime;
+
+sourceCity.oninput = () => {
+    filterCities(sourceCity, sourceCityList);
+    const tz = getTimezoneFromCity(sourceCity.value);
+    if (tz) {
+        sourceTimezone.value = tz;
+        updateSelectionUI('source', 'city');
+        convertTime();
+    }
+};
+sourceCity.onchange = () => {
+    const tz = getTimezoneFromCity(sourceCity.value);
+    if (tz) {
+        sourceTimezone.value = tz;
+        updateSelectionUI('source', 'city');
+        convertTime();
+    }
+};
+sourceTimezone.onchange = () => {
+    sourceCity.value = '';
+    updateSelectionUI('source', 'timezone');
+    convertTime();
+};
+
+targetCity.oninput = () => {
+    filterCities(targetCity, targetCityList);
+    const tz = getTimezoneFromCity(targetCity.value);
+    if (tz) {
+        targetTimezone.value = tz;
+        updateSelectionUI('target', 'city');
+        convertTime();
+    }
+};
+targetCity.onchange = () => {
+    const tz = getTimezoneFromCity(targetCity.value);
+    if (tz) {
+        targetTimezone.value = tz;
+        updateSelectionUI('target', 'city');
+        convertTime();
+    }
+};
+targetTimezone.onchange = () => {
+    targetCity.value = '';
+    updateSelectionUI('target', 'timezone');
+    convertTime();
+};
+
+sourceDSTChoice.onchange = convertTime;
+targetDSTChoice.onchange = convertTime;
+sourceAdjustButton.onclick = adjustSourceTime;
+targetAdjustButton.onclick = adjustTargetTime;
+document.getElementById('swapButton').onclick = swapTimezones;
+clearHistoryButton.onclick = clearHistory;
+
+populateTimezones();
+populateCities();
+sourceCity.value = "London, United Kingdom";
+sourceTimezone.value = getTimezoneFromCity(sourceCity.value);
+updateSelectionUI('source', 'city');
+targetCity.value = "Beijing, China";
+targetTimezone.value = getTimezoneFromCity(targetCity.value);
+updateSelectionUI('target', 'city');
+sourceDate.value = formatDate(new Date());
+convertTime();
+sourceCity.focus(); // Optional if using autofocus in HTML
+        
+    </script>
+</body>
+</html>
