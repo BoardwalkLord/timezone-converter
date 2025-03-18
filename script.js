@@ -1,4 +1,5 @@
-    const timezones = [
+<script>
+const timezones = [
         {name: "IDLW (UTC-12) - International Date Line West", offset: -12, dstRegion: null},
         {name: "HST (UTC-10) - Hawaii (No DST)", offset: -10, dstRegion: null},
         {name: "AKST (UTC-9) - Alaska", offset: -9, dstRegion: "US"},
@@ -732,3 +733,4 @@
     sourceCity.value = "";
     updateSelectionUI('source', 'timezone');
     setDefaultTargetCity();
+</script>
