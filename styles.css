@@ -94,9 +94,16 @@ li {
     display: inline-block;
     margin-right: 15px;
 }
+
+
+/* Replace with your existing styles.css from Part 2 */
 #sourceSection, #targetSection {
     margin: 20px 0;
 }
 select, input, button {
     margin: 5px;
+}
+.updated {
+    transition: background-color 0.5s;
+    background-color: #e0ffe0;
 }
