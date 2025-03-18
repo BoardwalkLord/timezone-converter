@@ -189,22 +189,59 @@ button:hover {
     { name: "CST (UTC+8) - China Standard Time", offset: 8, dstRegion: null },
     { name: "JST (UTC+9) - Japan Standard Time", offset: 9, dstRegion: null },
     { name: "AEST (UTC+10) - Australian Eastern Standard Time", offset: 10, dstRegion: "AU" },
-    { name: "NZST (UTC+12) - New Zealand Standard Time", offset: 12, dstRegion: "NZ" }
+    { name: "NZST (UTC+12) - New Zealand Standard Time", offset: 12, dstRegion: "NZ" },
+    // Added timezones for broader coverage
+    { name: "WAT (UTC+1) - West Africa Time", offset: 1, dstRegion: null },
+    { name: "CAT (UTC+2) - Central Africa Time", offset: 2, dstRegion: null },
+    { name: "EAT (UTC+3) - East Africa Time", offset: 3, dstRegion: null },
+    { name: "MSK (UTC+3) - Moscow Time", offset: 3, dstRegion: null },
+    { name: "BRT (UTC-3) - Brasília Time", offset: -3, dstRegion: "BR" },
+    { name: "ART (UTC-3) - Argentina Time", offset: -3, dstRegion: null },
+    { name: "CLT (UTC-4) - Chile Standard Time", offset: -4, dstRegion: "CL" }
 ];
 
 const cityToTimezone = [
-    { city: "London, UK", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
-    { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
-    { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
+    // North America
+    { city: "Washington, D.C., USA", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
     { city: "New York, USA", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
     { city: "Chicago, USA", timezone: "CST (UTC-6) - Central Standard Time (US)" },
     { city: "Denver, USA", timezone: "MST (UTC-7) - Mountain Standard Time (US)" },
     { city: "Los Angeles, USA", timezone: "PST (UTC-8) - Pacific Standard Time (US)" },
+    { city: "Ottawa, Canada", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Mexico City, Mexico", timezone: "CST (UTC-6) - Central Standard Time (US)" },
+    // Europe
+    { city: "London, UK", timezone: "GMT (UTC+0) - Greenwich Mean Time (UK)" },
+    { city: "Paris, France", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Berlin, Germany", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Madrid, Spain", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Rome, Italy", timezone: "CET (UTC+1) - Central European Time" },
+    { city: "Athens, Greece", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Moscow, Russia", timezone: "MSK (UTC+3) - Moscow Time" },
+    // Asia
+    { city: "New Delhi, India", timezone: "IST (UTC+5:30) - India Standard Time" },
     { city: "Mumbai, India", timezone: "IST (UTC+5:30) - India Standard Time" },
+    { city: "Beijing, China", timezone: "CST (UTC+8) - China Standard Time" },
     { city: "Shanghai, China", timezone: "CST (UTC+8) - China Standard Time" },
     { city: "Tokyo, Japan", timezone: "JST (UTC+9) - Japan Standard Time" },
+    // Oceania
+    { city: "Canberra, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
     { city: "Sydney, Australia", timezone: "AEST (UTC+10) - Australian Eastern Standard Time" },
-    { city: "Auckland, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" }
+    { city: "Wellington, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    { city: "Auckland, New Zealand", timezone: "NZST (UTC+12) - New Zealand Standard Time" },
+    // Africa
+    { city: "Abuja, Nigeria", timezone: "WAT (UTC+1) - West Africa Time" },
+    { city: "Pretoria, South Africa", timezone: "CAT (UTC+2) - Central Africa Time" }, // Admin capital
+    { city: "Nairobi, Kenya", timezone: "EAT (UTC+3) - East Africa Time" },
+    { city: "Cairo, Egypt", timezone: "EET (UTC+2) - Eastern European Time" },
+    // South America
+    { city: "Brasília, Brazil", timezone: "BRT (UTC-3) - Brasília Time" },
+    { city: "Buenos Aires, Argentina", timezone: "ART (UTC-3) - Argentina Time" },
+    { city: "Santiago, Chile", timezone: "CLT (UTC-4) - Chile Standard Time" },
+    // Additional Capitals
+    { city: "Havana, Cuba", timezone: "EST (UTC-5) - Eastern Standard Time (US)" },
+    { city: "Bridgetown, Barbados", timezone: "AST (UTC-4) - Atlantic Standard Time" },
+    { city: "Kyiv, Ukraine", timezone: "EET (UTC+2) - Eastern European Time" },
+    { city: "Ankara, Turkey", timezone: "MSK (UTC+3) - Moscow Time" } // Turkey uses UTC+3 year-round
 ];
         <!--Part3A above-->
         <!--Part3B below-->
