@@ -754,13 +754,23 @@
         targetDSTChoice.style.display = targetStatus.isAmbiguous ? "block" : "none";
         targetAdjustButton.style.display = targetStatus.isSkipped ? "block" : "none";
 
-        // Calculate UTC time and then target time, ensuring date is preserved
+        // Calculate UTC time and then target time
         const utcTimeMs = effectiveSourceTime.getTime() - (sourceOffset * 60 * 60 * 1000);
         const targetTime = new Date(utcTimeMs + (targetOffset * 60 * 60 * 1000));
 
+        // Extract time and date components explicitly
         const targetHours = targetTime.getHours();
         const targetMinutes = targetTime.getMinutes();
-        const targetDate = targetTime.toISOString().split('T')[0]; // Explicitly get the date from targetTime
+        const targetYear = targetTime.getFullYear();
+        const targetMonth = String(targetTime.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const targetDayOfMonth = String(targetTime.getDate()).padStart(2, '0');
+        const targetDate = `${targetYear}-${targetMonth}-${targetDayOfMonth}`;
+
+        // Debugging logs
+        console.log("Source Time:", effectiveSourceTime.toUTCString());
+        console.log("Target Time:", targetTime.toUTCString());
+        console.log("Target Date:", targetDate);
+        console.log("Target Day (calculated):", daysOfWeek[targetTime.getDay()]);
 
         const sourceDisplayTime = formatTime(hours, minutes);
         const targetDisplayTime = formatTime(targetHours, targetMinutes);
@@ -775,7 +785,7 @@
         sourceWarning.textContent = sourceStatus.warning;
         targetTimeDisplay.textContent = `Converted Time: ${targetDisplayTime} (UTC${targetOffset >= 0 ? '+' : ''}${targetOffset})`;
         targetDayDisplay.textContent = `Day: ${targetDay}`;
-        targetDateDisplay.textContent = `Date: ${targetDate}`; // Use the updated targetDate
+        targetDateDisplay.textContent = `Date: ${targetDate}`;
         targetWarning.textContent = targetStatus.warning;
 
         sourceTimeDisplay.classList.add('updated');
